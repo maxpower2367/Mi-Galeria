@@ -1,0 +1,1730 @@
+
+/* ==========================================
+   MI GALERIA - ESTILOS GENERALES
+========================================== */
+
+:root {
+    --fondo: #121212;
+    --sidebar: #191919;
+    --superficie: #202020;
+    --superficie-hover: #2c2c2c;
+    --borde: #363636;
+    --texto: #f5f5f5;
+    --texto-secundario: #a9a9a9;
+    --acento: #4b8dff;
+    --peligro: #d94b4b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+.oculto {
+    display: none !important;
+}
+
+/* ==========================================
+   BARRA LATERAL
+========================================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 240px;
+    padding: 25px 15px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--borde);
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.sidebar h2 {
+    margin-bottom: 30px;
+    padding: 0 10px;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.inicio {
+    display: block;
+    width: 100%;
+    padding: 13px 15px;
+    margin-bottom: 30px;
+    border: none;
+    border-radius: 9px;
+    background: var(--superficie);
+    color: var(--texto);
+    text-align: left;
+    font-size: 15px;
+    transition: background 0.2s;
+}
+
+.inicio:hover {
+    background: var(--superficie-hover);
+}
+
+.titulo-carpetas {
+    padding: 0 10px;
+    margin-bottom: 15px;
+    color: var(--texto-secundario);
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+#arbolCarpetas {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.arbol-item {
+    display: block;
+    width: 100%;
+    min-height: 38px;
+    padding: 9px 12px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #d5d5d5;
+    text-align: left;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.arbol-item:hover {
+    background: var(--superficie-hover);
+}
+
+.arbol-item.activo {
+    background: #263c60;
+    color: #ffffff;
+}
+
+/* ==========================================
+   CONTENIDO PRINCIPAL
+========================================== */
+
+.contenido {
+    min-height: 100vh;
+    margin-left: 240px;
+    padding: 35px 40px 60px;
+}
+
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.encabezado h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.acciones {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.acciones button,
+.boton-subir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 11px 18px;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    background: var(--superficie);
+    color: var(--texto);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.acciones button:hover,
+.boton-subir:hover {
+    background: var(--superficie-hover);
+}
+
+.acciones .boton-subir {
+    background: var(--acento);
+    border-color: var(--acento);
+}
+
+.acciones .boton-subir:hover {
+    background: #3678ed;
+}
+
+/* ==========================================
+   RUTA DE NAVEGACION
+========================================== */
+
+.ruta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--texto-secundario);
+}
+
+.ruta button {
+    padding: 3px 0;
+    border: none;
+    background: transparent;
+    color: var(--texto-secundario);
+    font-size: 13px;
+}
+
+.ruta button:hover {
+    color: var(--acento);
+}
+
+.ruta span {
+    color: #777777;
+}
+
+/* ==========================================
+   BUSCADOR Y ORDENAMIENTO
+========================================== */
+
+.herramientas {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 28px;
+}
+
+#buscador {
+    width: min(100%, 430px);
+    min-height: 43px;
+    padding: 11px 15px;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    outline: none;
+    background: var(--superficie);
+    color: var(--texto);
+    font-size: 14px;
+}
+
+#buscador::placeholder {
+    color: #888888;
+}
+
+#buscador:focus {
+    border-color: var(--acento);
+}
+
+#ordenar {
+    min-height: 43px;
+    padding: 10px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    outline: none;
+    background: var(--superficie);
+    color: var(--texto);
+    font-size: 14px;
+}
+
+/* ==========================================
+   SECCIONES
+========================================== */
+
+#seccionCarpetas,
+#seccionArchivos {
+    margin-bottom: 35px;
+}
+
+#seccionCarpetas h3,
+#seccionArchivos h3 {
+    margin-bottom: 20px;
+    color: #ededed;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+/* ==========================================
+   CARPETAS
+========================================== */
+
+.carpetas-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(190px, 1fr)
+    );
+    gap: 20px;
+}
+
+.carpeta {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--superficie);
+    cursor: pointer;
+    transition:
+        background 0.2s,
+        transform 0.2s,
+        border-color 0.2s;
+}
+
+.carpeta:hover {
+    background: var(--superficie-hover);
+    border-color: #555555;
+    transform: translateY(-2px);
+}
+
+.carpeta-portada {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #282828;
+}
+
+.carpeta-portada img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.carpeta-icono {
+    font-size: 65px;
+    line-height: 1;
+}
+
+.carpeta-pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 53px;
+    padding: 9px 11px 9px 14px;
+}
+
+.carpeta-nombre {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ==========================================
+   GALERIA DE ARCHIVOS
+========================================== */
+
+.galeria {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.archivo {
+    position: relative;
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    background: #242424;
+    cursor: pointer;
+    transition:
+        transform 0.2s,
+        border-color 0.2s;
+}
+
+.archivo:hover {
+    transform: scale(1.015);
+}
+
+.archivo img,
+.archivo video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.archivo.seleccionado {
+    border-color: var(--acento);
+    background: #263c60;
+}
+
+.archivo.seleccionado::after {
+    content: "✓";
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    background: var(--acento);
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.vacio {
+    grid-column: 1 / -1;
+    padding: 35px 20px;
+    border: 1px dashed var(--borde);
+    border-radius: 12px;
+    color: var(--texto-secundario);
+    text-align: center;
+    font-size: 14px;
+}
+
+/* ==========================================
+   BOTON DE TRES PUNTOS
+========================================== */
+
+.boton-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(25, 25, 25, 0.85);
+    color: white;
+    font-size: 23px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.boton-menu:hover {
+    background: #454545;
+}
+
+.archivo > .boton-menu {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+}
+
+.carpeta-pie .boton-menu {
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   MENU CONTEXTUAL
+========================================== */
+
+.menu-contextual {
+    position: fixed;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    width: 165px;
+    padding: 6px;
+    border: 1px solid #454545;
+    border-radius: 10px;
+    background: #292929;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+}
+
+.menu-contextual button {
+    width: 100%;
+    padding: 11px 12px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: white;
+    text-align: left;
+    font-size: 13px;
+}
+
+.menu-contextual button:hover {
+    background: #424242;
+}
+
+#opEliminar:hover {
+    background: #582727;
+    color: #ffaaaa;
+}
+
+/* ==========================================
+   SELECCION MULTIPLE
+========================================== */
+
+.barra-seleccion {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 25px;
+    padding: 14px 17px;
+    border: 1px solid #355889;
+    border-radius: 10px;
+    background: #1d304c;
+}
+
+#contadorSeleccion {
+    margin-right: auto;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.barra-seleccion button {
+    min-height: 37px;
+    padding: 9px 13px;
+    border: 1px solid #4a6385;
+    border-radius: 7px;
+    background: #2b4669;
+    color: white;
+    font-size: 13px;
+}
+
+.barra-seleccion button:hover {
+    background: #38577e;
+}
+
+.barra-seleccion button.peligro {
+    background: #7c3030;
+    border-color: #994444;
+}
+
+.barra-seleccion button.peligro:hover {
+    background: #9a3b3b;
+}
+
+/* ==========================================
+   VISOR MULTIMEDIA
+========================================== */
+
+.visor {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.96);
+}
+
+#cerrarVisor {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    z-index: 1005;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 43px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(55, 55, 55, 0.8);
+    color: white;
+    font-size: 24px;
+}
+
+#cerrarVisor:hover {
+    background: #555555;
+}
+
+/* ==========================================
+   CENTRO DEL VISOR
+========================================== */
+
+.visor-centro {
+    width: min(90vw, 1200px);
+    height: 90vh;
+    max-width: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================
+   AREA DE ZOOM
+========================================== */
+
+.area-zoom {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    touch-action: none;
+}
+
+#contenidoVisor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#contenidoVisor img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transform-origin: center center;
+    user-select: none;
+    -webkit-user-drag: none;
+    cursor: default;
+    will-change: transform;
+}
+
+#contenidoVisor img.con-zoom {
+    cursor: grab;
+}
+
+#contenidoVisor img.arrastrando {
+    cursor: grabbing;
+}
+
+#contenidoVisor video {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* ==========================================
+   NOMBRE DEL ARCHIVO EN EL VISOR
+========================================== */
+
+#nombreVisor {
+    max-width: 100%;
+    margin: 12px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #dddddd;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* ==========================================
+   CONTROLES DEL ZOOM
+========================================== */
+
+.controles-zoom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-shrink: 0;
+    padding: 10px 16px;
+    border: 1px solid #444444;
+    border-radius: 12px;
+    background: #242424;
+}
+
+.controles-zoom button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 8px;
+    background: #383838;
+    color: white;
+    font-size: 23px;
+}
+
+.controles-zoom button:hover:not(:disabled) {
+    background: #505050;
+}
+
+.controles-zoom button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+#porcentajeZoom {
+    min-width: 65px;
+    color: white;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================
+   FLECHAS DEL VISOR
+========================================== */
+
+.flecha {
+    position: absolute;
+    top: 50%;
+    z-index: 1004;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 55px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(45, 45, 45, 0.75);
+    color: white;
+    font-size: 28px;
+    transform: translateY(-50%);
+}
+
+.flecha:hover {
+    background: #555555;
+}
+
+.flecha.anterior {
+    left: 20px;
+}
+
+.flecha.siguiente {
+    right: 20px;
+}
+
+/* ==========================================
+   VENTANAS EMERGENTES
+========================================== */
+
+.modal-accion {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.78);
+}
+
+.modal-accion-contenido {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 25px;
+    border: 1px solid #444444;
+    border-radius: 16px;
+    background: #202020;
+    color: #ffffff;
+    box-shadow: 0 20px 65px rgba(0, 0, 0, 0.5);
+}
+
+.modal-accion-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.modal-accion-encabezado h2 {
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.modal-accion-cerrar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: #333333;
+    color: #ffffff;
+    font-size: 17px;
+}
+
+.modal-accion-cerrar:hover {
+    background: #505050;
+}
+
+.modal-accion-contenido > p {
+    margin-bottom: 20px;
+    color: #aaaaaa;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ==========================================
+   FORMULARIO NUEVA CARPETA
+========================================== */
+
+#nombreNuevaCarpeta {
+    width: 100%;
+    min-height: 45px;
+    padding: 13px 15px;
+    border: 1px solid #505050;
+    border-radius: 9px;
+    outline: none;
+    background: #303030;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+#nombreNuevaCarpeta::placeholder {
+    color: #999999;
+}
+
+#nombreNuevaCarpeta:focus {
+    border-color: var(--acento);
+}
+
+/* ==========================================
+   BOTONES DE LOS MODALES
+========================================== */
+
+.modal-accion-botones {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.boton-primario,
+.boton-secundario {
+    min-height: 40px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 9px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.boton-primario {
+    background: var(--acento);
+}
+
+.boton-primario:hover:not(:disabled) {
+    background: #3478f5;
+}
+
+.boton-secundario {
+    background: #393939;
+}
+
+.boton-secundario:hover:not(:disabled) {
+    background: #4a4a4a;
+}
+
+.boton-primario:disabled,
+.boton-secundario:disabled,
+.modal-accion-cerrar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   ARRASTRAR Y SOLTAR ARCHIVOS
+========================================== */
+
+.zona-arrastre {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 230px;
+    padding: 25px 15px;
+    border: 2px dashed #5977a4;
+    border-radius: 14px;
+    background: #252c37;
+    text-align: center;
+    transition:
+        background 0.2s,
+        border-color 0.2s;
+}
+
+.zona-arrastre.arrastrando-archivo {
+    background: #263e60;
+    border-color: #78acff;
+}
+
+.zona-arrastre-icono {
+    color: #83b1ff;
+    font-size: 55px;
+    line-height: 1;
+}
+
+.zona-arrastre h3 {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.zona-arrastre p {
+    color: #aaaaaa;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.zona-arrastre .boton-secundario {
+    margin-top: 5px;
+}
+
+/* ==========================================
+   LISTA DE ARCHIVOS PENDIENTES
+========================================== */
+
+.lista-archivos-subida {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    margin-top: 15px;
+    overflow-y: auto;
+}
+
+.archivo-pendiente {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #3c3c3c;
+    border-radius: 8px;
+    background: #292929;
+}
+
+.archivo-pendiente span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+.archivo-pendiente button {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: #ff9999;
+    font-size: 16px;
+}
+
+.archivo-pendiente button:hover {
+    color: #ff5555;
+}
+
+.estado-subida {
+    margin-top: 12px;
+    color: #b5d0ff;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ==========================================
+   PANTALLAS MEDIANAS
+========================================== */
+
+@media (max-width: 1100px) {
+
+    .contenido {
+        padding: 30px 25px;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .carpetas-grid {
+        grid-template-columns: repeat(
+            auto-fill,
+            minmax(160px, 1fr)
+        );
+    }
+
+    .encabezado {
+        flex-wrap: wrap;
+    }
+}
+
+/* ==========================================
+   TABLETS
+========================================== */
+
+@media (max-width: 800px) {
+
+    .sidebar {
+        width: 190px;
+    }
+
+    .contenido {
+        margin-left: 190px;
+        padding: 25px 20px;
+    }
+
+    .sidebar h2 {
+        font-size: 20px;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .visor-centro {
+        width: 85vw;
+    }
+
+    .flecha {
+        width: 37px;
+        height: 48px;
+        font-size: 23px;
+    }
+
+    .flecha.anterior {
+        left: 5px;
+    }
+
+    .flecha.siguiente {
+        right: 5px;
+    }
+}
+
+/* ==========================================
+   CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        max-height: 230px;
+        padding: 15px;
+        border-right: none;
+        border-bottom: 1px solid var(--borde);
+    }
+
+    .sidebar h2 {
+        margin-bottom: 15px;
+    }
+
+    .inicio {
+        margin-bottom: 15px;
+    }
+
+    #arbolCarpetas {
+        max-height: 100px;
+        overflow-y: auto;
+    }
+
+    .contenido {
+        margin-left: 0;
+        padding: 20px 12px 40px;
+    }
+
+    .encabezado h1 {
+        font-size: 25px;
+    }
+
+    .acciones {
+        width: 100%;
+    }
+
+    .acciones button,
+    .boton-subir {
+        flex: 1;
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    .herramientas {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #buscador,
+    #ordenar {
+        width: 100%;
+    }
+
+    .carpetas-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .carpeta-nombre {
+        font-size: 12px;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .archivo {
+        border-width: 2px;
+    }
+
+    .barra-seleccion {
+        gap: 8px;
+    }
+
+    #contadorSeleccion {
+        width: 100%;
+    }
+
+    .barra-seleccion button {
+        flex: 1;
+        font-size: 12px;
+    }
+
+    .visor-centro {
+        width: 84vw;
+        height: 85vh;
+    }
+
+    #cerrarVisor {
+        top: 10px;
+        right: 10px;
+        width: 37px;
+        height: 37px;
+    }
+
+    .flecha {
+        width: 28px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    .flecha.anterior {
+        left: 2px;
+    }
+
+    .flecha.siguiente {
+        right: 2px;
+    }
+
+    .controles-zoom {
+        gap: 6px;
+        padding: 8px;
+    }
+
+    .controles-zoom button {
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
+    }
+
+    #porcentajeZoom {
+        min-width: 55px;
+        font-size: 13px;
+    }
+
+    #nombreVisor {
+        font-size: 12px;
+    }
+
+    .modal-accion {
+        padding: 12px;
+    }
+
+    .modal-accion-contenido {
+        padding: 18px;
+    }
+
+    .modal-accion-encabezado h2 {
+        font-size: 19px;
+    }
+
+    .modal-accion-botones button {
+        flex: 1;
+    }
+
+    .zona-arrastre {
+        min-height: 200px;
+        padding: 20px 12px;
+    }
+
+    .zona-arrastre h3 {
+        font-size: 15px;
+    }
+}
+
+
+/* ==========================================
+   BOTON PANTALLA COMPLETA
+========================================== */
+
+#btnPantallaCompleta {
+    position: absolute;
+    top: 20px;
+    right: 80px;
+    z-index: 1005;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 43px;
+    height: 43px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(55, 55, 55, 0.8);
+    color: white;
+
+    font-size: 28px;
+    cursor: pointer;
+}
+
+#btnPantallaCompleta:hover {
+    background: #555555;
+}
+
+/* ==========================================
+   VISOR EN PANTALLA COMPLETA
+========================================== */
+
+#visor:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    background: #000000;
+}
+
+#visor:fullscreen .visor-centro {
+    width: calc(100vw - 120px);
+    max-width: none;
+    height: 94vh;
+}
+
+#visor:fullscreen .area-zoom {
+    flex: 1;
+    min-height: 0;
+}
+
+#visor:fullscreen #contenidoVisor {
+    width: 100%;
+    height: 100%;
+}
+
+#visor:fullscreen #contenidoVisor img,
+#visor:fullscreen #contenidoVisor video {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* ==========================================
+   PANTALLA COMPLETA EN CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    #btnPantallaCompleta {
+        top: 10px;
+        right: 55px;
+        width: 37px;
+        height: 37px;
+        font-size: 23px;
+    }
+
+    #visor:fullscreen .visor-centro {
+        width: calc(100vw - 65px);
+        height: 95vh;
+    }
+}
+
+
+
+/* ==========================================
+   VISOR FLOTANTE - NUEVA VERSION
+========================================== */
+
+.visor {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: hidden;
+    background: #000;
+}
+
+/* ==========================================
+   IMAGEN A PANTALLA DISPONIBLE
+========================================== */
+
+.visor .area-zoom {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.visor #contenidoVisor {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.visor #contenidoVisor img,
+.visor #contenidoVisor video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* ==========================================
+   NOMBRE FLOTANTE
+========================================== */
+
+.visor-nombre-flotante {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1006;
+    max-width: calc(100% - 180px);
+    padding: 11px 15px;
+    border-radius: 10px;
+    background: rgba(25, 25, 25, 0.78);
+    pointer-events: none;
+}
+
+.visor #nombreVisor {
+    display: block;
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #fff;
+    font-size: 14px;
+    text-align: left;
+}
+
+/* ==========================================
+   BOTONES SUPERIORES
+========================================== */
+
+.visor-botones-superiores {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    z-index: 1007;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.visor #btnPantallaCompleta,
+.visor #cerrarVisor {
+    position: static;
+    width: 43px;
+    height: 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(45, 45, 45, 0.85);
+    color: white;
+    font-size: 23px;
+    cursor: pointer;
+}
+
+.visor #btnPantallaCompleta:hover,
+.visor #cerrarVisor:hover {
+    background: #555;
+}
+
+/* ==========================================
+   FLECHAS FLOTANTES
+========================================== */
+
+.visor .flecha {
+    position: absolute;
+    top: 50%;
+    z-index: 1006;
+    transform: translateY(-50%);
+    background: rgba(40, 40, 40, 0.72);
+}
+
+.visor .flecha.anterior {
+    left: 15px;
+}
+
+.visor .flecha.siguiente {
+    right: 15px;
+}
+
+/* ==========================================
+   PANEL DE ZOOM FLOTANTE
+========================================== */
+
+.panel-zoom {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    z-index: 1007;
+    transform: translateX(-50%);
+}
+
+.visor .controles-zoom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #454545;
+    border-radius: 12px;
+    background: rgba(32, 32, 32, 0.88);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.separador-zoom {
+    width: 1px;
+    height: 25px;
+    background: #555;
+}
+
+/* ==========================================
+   BOTON MOSTRAR CONTROLES
+========================================== */
+
+.boton-mostrar-zoom {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    z-index: 1007;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 36px;
+    border: 1px solid #444;
+    border-radius: 10px;
+    background: rgba(35, 35, 35, 0.88);
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.boton-mostrar-zoom:hover {
+    background: #505050;
+}
+
+/* ==========================================
+   PANTALLA COMPLETA
+========================================== */
+
+#visor:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+}
+
+#visor:fullscreen .area-zoom {
+    width: 100%;
+    height: 100%;
+}
+
+#visor:fullscreen #contenidoVisor {
+    width: 100%;
+    height: 100%;
+}
+
+#visor:fullscreen #contenidoVisor img,
+#visor:fullscreen #contenidoVisor video {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* ==========================================
+   CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    .visor-nombre-flotante {
+        top: 12px;
+        left: 10px;
+        max-width: calc(100% - 115px);
+        padding: 8px 10px;
+    }
+
+    .visor #nombreVisor {
+        font-size: 11px;
+    }
+
+    .visor-botones-superiores {
+        top: 10px;
+        right: 10px;
+        gap: 5px;
+    }
+
+    .visor #btnPantallaCompleta,
+    .visor #cerrarVisor {
+        width: 35px;
+        height: 35px;
+        font-size: 19px;
+    }
+
+    .visor .flecha.anterior {
+        left: 3px;
+    }
+
+    .visor .flecha.siguiente {
+        right: 3px;
+    }
+
+    .panel-zoom {
+        bottom: 15px;
+    }
+
+    .visor .controles-zoom {
+        gap: 5px;
+        padding: 7px;
+    }
+
+    .boton-mostrar-zoom {
+        bottom: 15px;
+    }
+}
+
+
+
+/* ==========================================
+   NOMBRE DE ARCHIVOS EN LA GALERIA
+========================================== */
+
+.galeria {
+    align-items: start;
+}
+
+.archivo {
+    aspect-ratio: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #202020;
+}
+
+.archivo img,
+.archivo video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.archivo-nombre {
+    width: 100%;
+    padding: 11px 12px;
+    background: #242424;
+    color: #eeeeee;
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: left;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.archivo:hover .archivo-nombre {
+    background: #303030;
+}
+
+/* CELULARES */
+
+@media (max-width: 600px) {
+
+    .archivo-nombre {
+        padding: 9px 8px;
+        font-size: 11px;
+    }
+}
+
+
+
+/* ==========================================
+   SELECTOR DE VISTA
+========================================== */
+
+.selector-vista {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.selector-vista span {
+    color: #aaaaaa;
+    font-size: 14px;
+}
+
+#columnasGaleria {
+    min-height: 43px;
+    padding: 10px 14px;
+    border: 1px solid #363636;
+    border-radius: 9px;
+    background: #202020;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#columnasGaleria:hover {
+    border-color: #4b8dff;
+}
+
+/* ==========================================
+   COLUMNAS DINAMICAS
+========================================== */
+
+.galeria {
+    grid-template-columns: repeat(
+        var(--columnas-galeria, 4),
+        minmax(0, 1fr)
+    );
+}
+
+/* ==========================================
+   ADAPTACION A PANTALLAS PEQUEÑAS
+========================================== */
+
+@media (max-width: 600px) {
+
+    .selector-vista {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #columnasGaleria {
+        flex: 1;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(
+            min(var(--columnas-galeria, 4), 2),
+            minmax(0, 1fr)
+        );
+    }
+}
+
+
+
+
+/* ==========================================
+   BARRA INFERIOR DE ESTADO
+========================================== */
+
+.barra-estado {
+    position: fixed;
+    bottom: 0;
+    left: 240px;
+    right: 0;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 0 15px;
+
+    background: #191919;
+    border-top: 1px solid #363636;
+
+    color: #eeeeee;
+    font-size: 12px;
+
+    z-index: 20;
+}
+
+.separador-estado {
+    width: 1px;
+    height: 17px;
+    background: #555555;
+}
+
+#detalleElementos {
+    color: #aaaaaa;
+}
+
+.contenido {
+    padding-bottom: 75px;
+}
+
+@media (max-width: 600px) {
+
+    .barra-estado {
+        left: 0;
+        font-size: 11px;
+    }
+}

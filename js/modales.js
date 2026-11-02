@@ -1,0 +1,303 @@
+
+/* ==========================================
+   MI GALERIA - MODALES
+   Archivo: modales.js
+========================================== */
+
+let archivosPendientes = [];
+let subidaEnProceso = false;
+
+function abrirModal(id) {
+    $(id).classList.remove("oculto");
+}
+
+function cerrarModal(id) {
+    $(id).classList.add("oculto");
+}
+
+/* ==========================================
+   NUEVA CARPETA
+========================================== */
+
+function abrirModalCarpeta() {
+    $("nombreNuevaCarpeta").value = "";
+    abrirModal("modalCarpeta");
+    $("nombreNuevaCarpeta").focus();
+}
+
+function cerrarModalCarpeta() {
+    cerrarModal("modalCarpeta");
+}
+
+async function crearCarpetaDesdeModal(evento) {
+    evento.preventDefault();
+
+    const nombre = $("nombreNuevaCarpeta").value.trim();
+
+    if (!nombre) return;
+
+    try {
+        const carpetas = await obtenerTodos("carpetas");
+
+        const repetida = carpetas.some(c =>
+            c.padre === carpetaActual &&
+            c.nombre.toLowerCase() === nombre.toLowerCase()
+        );
+
+        if (repetida) {
+            alert("Ya existe una carpeta con ese nombre.");
+            return;
+        }
+
+        await guardar("carpetas", {
+            id: crearId(),
+            nombre,
+            padre: carpetaActual,
+            fecha: Date.now()
+        });
+
+        cerrarModalCarpeta();
+        await mostrarContenido();
+
+    } catch (error) {
+        mostrarError(error);
+    }
+}
+
+/* ==========================================
+   SUBIR ARCHIVOS
+========================================== */
+
+function abrirModalSubida() {
+    if (subidaEnProceso) return;
+
+    archivosPendientes = [];
+    $("subirArchivos").value = "";
+    $("estadoSubida").textContent = "";
+
+    actualizarListaSubida();
+    abrirModal("modalSubida");
+}
+
+function cerrarModalSubida() {
+    if (subidaEnProceso) return;
+
+    archivosPendientes = [];
+    $("subirArchivos").value = "";
+    cerrarModal("modalSubida");
+}
+
+function agregarArchivosPendientes(archivos) {
+    if (subidaEnProceso) return;
+
+    const nuevos = Array.from(archivos).filter(archivo =>
+        archivo.type.startsWith("image/") ||
+        archivo.type.startsWith("video/")
+    );
+
+    for (const archivo of nuevos) {
+        const repetido = archivosPendientes.some(a =>
+            a.name === archivo.name &&
+            a.size === archivo.size &&
+            a.lastModified === archivo.lastModified
+        );
+
+        if (!repetido) {
+            archivosPendientes.push(archivo);
+        }
+    }
+
+    actualizarListaSubida();
+}
+
+function actualizarListaSubida() {
+    const lista = $("listaArchivosSubida");
+
+    lista.innerHTML = "";
+
+    archivosPendientes.forEach((archivo, indice) => {
+        const fila = document.createElement("div");
+        fila.className = "archivo-pendiente";
+
+        const nombre = document.createElement("span");
+        nombre.textContent = archivo.name;
+        nombre.title = archivo.name;
+
+        const quitar = document.createElement("button");
+        quitar.type = "button";
+        quitar.textContent = "✕";
+        quitar.title = "Quitar archivo";
+        quitar.disabled = subidaEnProceso;
+
+        quitar.onclick = () => {
+            archivosPendientes.splice(indice, 1);
+            actualizarListaSubida();
+        };
+
+        fila.append(nombre, quitar);
+        lista.appendChild(fila);
+    });
+
+    $("confirmarSubida").disabled =
+        subidaEnProceso || archivosPendientes.length === 0;
+
+    $("confirmarSubida").textContent =
+        archivosPendientes.length > 0
+            ? `Subir ${archivosPendientes.length} archivo(s)`
+            : "Subir archivos";
+}
+
+async function confirmarArchivosSubida() {
+    if (subidaEnProceso || archivosPendientes.length === 0) {
+        return;
+    }
+
+    subidaEnProceso = true;
+
+    const archivos = [...archivosPendientes];
+    const destino = carpetaActual;
+
+    $("confirmarSubida").disabled = true;
+    $("cancelarModalSubida").disabled = true;
+    $("cerrarModalSubida").disabled = true;
+    $("btnSeleccionarArchivos").disabled = true;
+
+    let guardados = 0;
+
+    try {
+        for (const archivo of archivos) {
+            $("estadoSubida").textContent =
+                `Subiendo ${guardados + 1} de ${archivos.length}...`;
+
+            await guardar("archivos", {
+                id: crearId(),
+                nombre: archivo.name,
+                tipo: archivo.type,
+                carpeta: destino,
+                fecha: Date.now(),
+                datos: archivo
+            });
+
+            guardados++;
+        }
+
+        archivosPendientes = [];
+        $("subirArchivos").value = "";
+
+        await mostrarContenido();
+
+        $("estadoSubida").textContent =
+            `${guardados} archivo(s) guardado(s) correctamente.`;
+
+        cerrarModal("modalSubida");
+
+    } catch (error) {
+        mostrarError(error);
+
+        archivosPendientes = archivos.slice(guardados);
+
+        $("estadoSubida").textContent =
+            `Se guardaron ${guardados} de ${archivos.length}. ` +
+            "Puedes reintentar los restantes.";
+
+    } finally {
+        subidaEnProceso = false;
+
+        $("cancelarModalSubida").disabled = false;
+        $("cerrarModalSubida").disabled = false;
+        $("btnSeleccionarArchivos").disabled = false;
+
+        actualizarListaSubida();
+    }
+}
+
+/* ==========================================
+   EVENTOS
+========================================== */
+
+function iniciarEventosModales() {
+
+    $("btnNuevaCarpeta").addEventListener(
+        "click",
+        abrirModalCarpeta
+    );
+
+    $("cerrarModalCarpeta").addEventListener(
+        "click",
+        cerrarModalCarpeta
+    );
+
+    $("cancelarModalCarpeta").addEventListener(
+        "click",
+        cerrarModalCarpeta
+    );
+
+    $("formNuevaCarpeta").addEventListener(
+        "submit",
+        crearCarpetaDesdeModal
+    );
+
+    $("btnAbrirSubida").addEventListener(
+        "click",
+        abrirModalSubida
+    );
+
+    $("cerrarModalSubida").addEventListener(
+        "click",
+        cerrarModalSubida
+    );
+
+    $("cancelarModalSubida").addEventListener(
+        "click",
+        cerrarModalSubida
+    );
+
+    $("btnSeleccionarArchivos").addEventListener(
+        "click",
+        () => $("subirArchivos").click()
+    );
+
+    $("subirArchivos").addEventListener(
+        "change",
+        evento => {
+            agregarArchivosPendientes(evento.target.files);
+            evento.target.value = "";
+        }
+    );
+
+    $("confirmarSubida").addEventListener(
+        "click",
+        confirmarArchivosSubida
+    );
+
+    const zona = $("zonaArrastre");
+
+    zona.addEventListener("dragover", evento => {
+        evento.preventDefault();
+        zona.classList.add("arrastrando-archivo");
+    });
+
+    zona.addEventListener("dragleave", evento => {
+        if (!zona.contains(evento.relatedTarget)) {
+            zona.classList.remove("arrastrando-archivo");
+        }
+    });
+
+    zona.addEventListener("drop", evento => {
+        evento.preventDefault();
+        zona.classList.remove("arrastrando-archivo");
+        agregarArchivosPendientes(evento.dataTransfer.files);
+    });
+
+    ["modalCarpeta", "modalSubida"].forEach(id => {
+        $(id).addEventListener("click", evento => {
+            if (evento.target !== $(id)) return;
+
+            if (id === "modalCarpeta") {
+                cerrarModalCarpeta();
+            } else {
+                cerrarModalSubida();
+            }
+        });
+    });
+}
