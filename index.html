@@ -3,21 +3,94 @@
 <html lang="es">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Mi Galería</title>
 
-    <link
-        rel="stylesheet"
-        href="css/estilos.css"
-    >
+    <link rel="stylesheet" href="css/estilos.css">
     <link rel="stylesheet" href="css/estadisticas.css">
+
+    <style>
+        /* ==========================================
+           MENU HAMBURGUESA
+        ========================================== */
+
+        .menu-ajustes {
+            position: relative;
+            margin-left: auto;
+        }
+
+        .boton-hamburguesa {
+            min-width: 48px;
+            min-height: 44px;
+            font-size: 23px;
+            background: #242424;
+            color: white;
+            border: 1px solid #3a3a3a;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .boton-hamburguesa:hover {
+            background: #353535;
+        }
+
+        .panel-menu-ajustes {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 265px;
+            max-width: calc(100vw - 24px);
+            padding: 12px;
+            background: #1d1d1d;
+            color: white;
+            border: 1px solid #383838;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+        }
+
+        .panel-menu-ajustes[hidden] {
+            display: none !important;
+        }
+
+        .menu-ajustes-titulo {
+            font-size: 13px;
+            font-weight: bold;
+            color: #bbbbbb;
+            padding: 8px 10px 12px;
+        }
+
+        .panel-menu-ajustes button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px;
+            margin: 3px 0;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .panel-menu-ajustes button:hover {
+            background: #333333;
+        }
+
+        .panel-menu-ajustes button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .menu-ajustes-separador {
+            height: 1px;
+            background: #383838;
+            margin: 10px 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -58,31 +131,19 @@
         <header class="encabezado">
 
             <div>
-
-                <h1 id="titulo">
-                    Inicio
-                </h1>
-
-                <div
-                    id="ruta"
-                    class="ruta"
-                ></div>
-
+                <h1 id="titulo">Inicio</h1>
+                <div id="ruta" class="ruta"></div>
             </div>
-
 
             <!-- BOTONES PRINCIPALES -->
 
             <div class="acciones">
 
                 <button id="btnEstadisticas" type="button">
-                   📊 Estadísticas
-                 </button>
+                    📊 Estadísticas
+                </button>
 
-                <button
-                    id="btnNuevaCarpeta"
-                    type="button"
-                >
+                <button id="btnNuevaCarpeta" type="button">
                     + Nueva carpeta
                 </button>
 
@@ -94,9 +155,69 @@
                     ↑ Subir archivos
                 </button>
 
+                <!-- MENU HAMBURGUESA -->
+
+                <div class="menu-ajustes">
+
+                    <button
+                        id="btnMenuAjustes"
+                        class="boton-hamburguesa"
+                        type="button"
+                        aria-label="Abrir opciones"
+                        aria-expanded="false"
+                        aria-controls="panelMenuAjustes"
+                    >
+                        ☰
+                    </button>
+
+                    <div
+                        id="panelMenuAjustes"
+                        class="panel-menu-ajustes"
+                        hidden
+                    >
+
+                        <div class="menu-ajustes-titulo">
+                            Opciones de Mi Galería
+                        </div>
+
+                        <button id="btnConectarBoveda" type="button">
+                            🔐 Conectar Cryptomator
+                        </button>
+
+                        <button id="btnGuardarBoveda" type="button">
+                            ☁️ Guardar en bóveda
+                        </button>
+
+                        <button id="btnRestaurarBoveda" type="button">
+                            📥 Recuperar de bóveda
+                        </button>
+
+                        <div class="menu-ajustes-separador"></div>
+
+                        <button id="btnExportarRespaldo" type="button">
+                            💾 Exportar respaldo
+                        </button>
+
+                        <button id="btnImportarRespaldo" type="button">
+                            📂 Importar respaldo
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
 
         </header>
+
+
+        <!-- ESTADO DE RESPALDOS -->
+
+        <div
+            id="respaldoEstado"
+            role="status"
+            style="font-size:13px; padding:5px 0; overflow-wrap:anywhere;"
+        ></div>
 
 
         <!-- =====================================
@@ -135,48 +256,28 @@
 
             </select>
 
-            
-<!-- =====================================
-     CAMBIAR VISTA DE LA GALERIA
-====================================== -->
 
-<div class="selector-vista">
+            <!-- CAMBIAR VISTA -->
 
-    <span>Vista:</span>
+            <div class="selector-vista">
 
-    
-<!-- =====================================
-     CAMBIAR VISTA DE LA GALERIA
-====================================== -->
+                <span>Vista:</span>
 
-<div class="selector-vista">
+                <select
+                    id="columnasGaleria"
+                    title="Cambiar tamaño de miniaturas"
+                >
 
-    <span>Vista:</span>
+                    <option value="3">3 × 3</option>
+                    <option value="4" selected>4 × 4</option>
+                    <option value="5">5 × 5</option>
+                    <option value="6">6 × 6</option>
+                    <option value="7">7 × 7</option>
+                    <option value="8">8 × 8</option>
 
-    <select
-        id="columnasGaleria"
-        title="Cambiar tamaño de miniaturas"
-    >
+                </select>
 
-        <option value="3">3 × 3</option>
-
-        <option value="4" selected>4 × 4</option>
-
-        <option value="5">5 × 5</option>
-
-        <option value="6">6 × 6</option>
-
-        <option value="7">7 × 7</option>
-
-        <option value="8">8 × 8</option>
-
-    </select>
-
-</div>
-
-
-</div>
-
+            </div>
 
         </div>
 
@@ -194,10 +295,7 @@
                 0 archivos seleccionados
             </span>
 
-            <button
-                id="btnMoverSeleccion"
-                type="button"
-            >
+            <button id="btnMoverSeleccion" type="button">
                 Mover seleccionados
             </button>
 
@@ -209,10 +307,7 @@
                 Eliminar seleccionados
             </button>
 
-            <button
-                id="btnCancelarSeleccion"
-                type="button"
-            >
+            <button id="btnCancelarSeleccion" type="button">
                 Cancelar
             </button>
 
@@ -253,198 +348,135 @@
     </main>
 
 
- 
-<!-- =====================================
-     VISOR DE IMAGENES, GIFS Y VIDEOS
-====================================== -->
-
-<div
-    id="visor"
-    class="visor oculto"
->
-
     <!-- =====================================
-         AREA PRINCIPAL DE LA IMAGEN
+         VISOR DE IMAGENES, GIFS Y VIDEOS
     ====================================== -->
 
-    <div
-        id="areaZoom"
-        class="area-zoom"
-    >
+    <div id="visor" class="visor oculto">
 
-        <div id="contenidoVisor"></div>
+        <div id="areaZoom" class="area-zoom">
+            <div id="contenidoVisor"></div>
+        </div>
 
-    </div>
+        <!-- NOMBRE DEL ARCHIVO -->
 
+        <div class="visor-nombre-flotante">
+            <span id="nombreVisor"></span>
+        </div>
 
-    <!-- =====================================
-         NOMBRE DEL ARCHIVO FLOTANTE
-    ====================================== -->
+        <!-- BOTONES SUPERIORES -->
 
-    <div class="visor-nombre-flotante">
-
-        <span id="nombreVisor"></span>
-
-    </div>
-
-
-    <!-- =====================================
-         BOTONES SUPERIORES
-    ====================================== -->
-
-    <div class="visor-botones-superiores">
-
-        <!-- PANTALLA COMPLETA -->
-
-        <button
-            id="btnPantallaCompleta"
-            type="button"
-            title="Activar pantalla completa"
-            aria-label="Activar pantalla completa"
-        >
-            ⛶
-        </button>
-
-
-        <!-- CERRAR VISOR -->
-
-        <button
-            id="cerrarVisor"
-            type="button"
-            title="Cerrar visor"
-            aria-label="Cerrar visor"
-        >
-            ✕
-        </button>
-
-    </div>
-
-
-    <!-- =====================================
-         FLECHAS DE NAVEGACION
-    ====================================== -->
-
-    <!-- ARCHIVO ANTERIOR -->
-
-    <button
-        id="anterior"
-        class="flecha anterior"
-        type="button"
-        title="Archivo anterior"
-        aria-label="Archivo anterior"
-    >
-        ❮
-    </button>
-
-
-    <!-- SIGUIENTE ARCHIVO -->
-
-    <button
-        id="siguiente"
-        class="flecha siguiente"
-        type="button"
-        title="Archivo siguiente"
-        aria-label="Archivo siguiente"
-    >
-        ❯
-    </button>
-
-
-    <!-- =====================================
-         PANEL DE ZOOM FLOTANTE
-    ====================================== -->
-
-    <div
-        id="panelZoom"
-        class="panel-zoom"
-    >
-
-        <div
-            id="controlesZoom"
-            class="controles-zoom"
-        >
-
-            <!-- ALEJAR -->
+        <div class="visor-botones-superiores">
 
             <button
-                id="zoomMenos"
+                id="btnPantallaCompleta"
                 type="button"
-                title="Alejar imagen"
+                title="Activar pantalla completa"
+                aria-label="Activar pantalla completa"
             >
-                −
+                ⛶
             </button>
 
-
-            <!-- PORCENTAJE -->
-
-            <span id="porcentajeZoom">
-                100%
-            </span>
-
-
-            <!-- ACERCAR -->
-
             <button
-                id="zoomMas"
+                id="cerrarVisor"
                 type="button"
-                title="Acercar imagen"
+                title="Cerrar visor"
+                aria-label="Cerrar visor"
             >
-                +
-            </button>
-
-
-            <!-- RESTABLECER ZOOM -->
-
-            <button
-                id="zoomReset"
-                type="button"
-                title="Restablecer zoom"
-            >
-                ↺
-            </button>
-
-
-            <!-- SEPARADOR -->
-
-            <span class="separador-zoom"></span>
-
-
-            <!-- OCULTAR CONTROLES -->
-
-            <button
-                id="btnOcultarZoom"
-                type="button"
-                title="Ocultar controles de zoom"
-                aria-label="Ocultar controles de zoom"
-            >
-                ▾
+                ✕
             </button>
 
         </div>
 
+
+        <!-- NAVEGACION -->
+
+        <button
+            id="anterior"
+            class="flecha anterior"
+            type="button"
+            title="Archivo anterior"
+            aria-label="Archivo anterior"
+        >
+            ❮
+        </button>
+
+        <button
+            id="siguiente"
+            class="flecha siguiente"
+            type="button"
+            title="Archivo siguiente"
+            aria-label="Archivo siguiente"
+        >
+            ❯
+        </button>
+
+
+        <!-- PANEL DE ZOOM -->
+
+        <div id="panelZoom" class="panel-zoom">
+
+            <div id="controlesZoom" class="controles-zoom">
+
+                <button
+                    id="zoomMenos"
+                    type="button"
+                    title="Alejar imagen"
+                >
+                    −
+                </button>
+
+                <span id="porcentajeZoom">100%</span>
+
+                <button
+                    id="zoomMas"
+                    type="button"
+                    title="Acercar imagen"
+                >
+                    +
+                </button>
+
+                <button
+                    id="zoomReset"
+                    type="button"
+                    title="Restablecer zoom"
+                >
+                    ↺
+                </button>
+
+                <span class="separador-zoom"></span>
+
+                <button
+                    id="btnOcultarZoom"
+                    type="button"
+                    title="Ocultar controles de zoom"
+                    aria-label="Ocultar controles de zoom"
+                >
+                    ▾
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- MOSTRAR CONTROLES DE ZOOM -->
+
+        <button
+            id="btnMostrarZoom"
+            class="boton-mostrar-zoom oculto"
+            type="button"
+            title="Mostrar controles de zoom"
+            aria-label="Mostrar controles de zoom"
+        >
+            ▴
+        </button>
+
     </div>
 
 
     <!-- =====================================
-         BOTON PARA MOSTRAR CONTROLES
-    ====================================== -->
-
-    <button
-        id="btnMostrarZoom"
-        class="boton-mostrar-zoom oculto"
-        type="button"
-        title="Mostrar controles de zoom"
-        aria-label="Mostrar controles de zoom"
-    >
-        ▴
-    </button>
-
-</div>
-
-
-
-    <!-- =====================================
-         MENU DE TRES PUNTOS
+         MENU CONTEXTUAL
     ====================================== -->
 
     <div
@@ -452,31 +484,19 @@
         class="menu-contextual oculto"
     >
 
-        <button
-            id="opSeleccionar"
-            type="button"
-        >
+        <button id="opSeleccionar" type="button">
             Seleccionar
         </button>
 
-        <button
-            id="opRenombrar"
-            type="button"
-        >
+        <button id="opRenombrar" type="button">
             Renombrar
         </button>
 
-        <button
-            id="opMover"
-            type="button"
-        >
+        <button id="opMover" type="button">
             Mover
         </button>
 
-        <button
-            id="opEliminar"
-            type="button"
-        >
+        <button id="opEliminar" type="button">
             Eliminar
         </button>
 
@@ -497,8 +517,6 @@
 
         <div class="modal-accion-contenido">
 
-            <!-- ENCABEZADO -->
-
             <div class="modal-accion-encabezado">
 
                 <h2 id="tituloModalCarpeta">
@@ -516,16 +534,10 @@
 
             </div>
 
-
-            <!-- DESCRIPCION -->
-
             <p>
                 Escribe el nombre de la carpeta
                 que deseas crear.
             </p>
-
-
-            <!-- FORMULARIO -->
 
             <form id="formNuevaCarpeta">
 
@@ -537,9 +549,6 @@
                     autocomplete="off"
                     required
                 >
-
-
-                <!-- BOTONES -->
 
                 <div class="modal-accion-botones">
 
@@ -581,8 +590,6 @@
 
         <div class="modal-accion-contenido">
 
-            <!-- ENCABEZADO -->
-
             <div class="modal-accion-encabezado">
 
                 <h2 id="tituloModalSubida">
@@ -600,18 +607,13 @@
 
             </div>
 
-
-            <!-- DESCRIPCION -->
-
             <p>
                 Selecciona imágenes, GIFs o videos
                 para agregarlos a tu galería.
             </p>
 
 
-            <!-- =================================
-                 ZONA PARA ARRASTRAR ARCHIVOS
-            ================================== -->
+            <!-- ARRASTRAR ARCHIVOS -->
 
             <div
                 id="zonaArrastre"
@@ -631,9 +633,6 @@
                     desde tu computadora.
                 </p>
 
-
-                <!-- SELECCIONAR ARCHIVOS -->
-
                 <button
                     id="btnSeleccionarArchivos"
                     class="boton-secundario"
@@ -641,9 +640,6 @@
                 >
                     Seleccionar archivos
                 </button>
-
-
-                <!-- INPUT OCULTO -->
 
                 <input
                     type="file"
@@ -656,9 +652,7 @@
             </div>
 
 
-            <!-- =================================
-                 LISTA DE ARCHIVOS SELECCIONADOS
-            ================================== -->
+            <!-- LISTA DE ARCHIVOS -->
 
             <div
                 id="listaArchivosSubida"
@@ -666,7 +660,7 @@
             ></div>
 
 
-            <!-- ESTADO DE LA SUBIDA -->
+            <!-- ESTADO -->
 
             <p
                 id="estadoSubida"
@@ -676,9 +670,7 @@
             ></p>
 
 
-            <!-- =================================
-                 BOTONES DE SUBIDA
-            ================================== -->
+            <!-- BOTONES -->
 
             <div class="modal-accion-botones">
 
@@ -706,214 +698,224 @@
     </div>
 
 
+    <!-- =====================================
+         BARRA INFERIOR DE ESTADO
+    ====================================== -->
 
-    
-<!-- =====================================
-     BARRA INFERIOR DE ESTADO
-====================================== -->
+    <div class="barra-estado">
 
-<div class="barra-estado">
+        <span id="contadorElementos">
+            0 elementos
+        </span>
 
-    <span id="contadorElementos">
-        0 elementos
-    </span>
+        <span class="separador-estado"></span>
 
-    <span class="separador-estado"></span>
+        <span id="detalleElementos">
+            0 carpetas, 0 archivos
+        </span>
 
-    <span id="detalleElementos">
-        0 carpetas, 0 archivos
-    </span>
-
-</div>
-
-
-<!-- ==========================================
-     PANEL DE ESTADISTICAS
-========================================== -->
-
-<div id="panelEstadisticas" class="panel-estadisticas oculto">
-
-    <div class="estad-cabecera">
-        <h2>📊 Estadísticas de Mi Galería</h2>
-
-        <button
-            id="cerrarEstadisticas"
-            class="estad-boton"
-            type="button"
-        >
-            ✕ Cerrar
-        </button>
     </div>
 
-    <!-- LISTA DE COMPARATIVAS -->
 
-    <section id="listaComparativas">
+    <!-- =====================================
+         PANEL DE ESTADISTICAS
+    ====================================== -->
+
+    <div
+        id="panelEstadisticas"
+        class="panel-estadisticas oculto"
+    >
 
         <div class="estad-cabecera">
 
-            <h2>Mis comparativas</h2>
+            <h2>📊 Estadísticas de Mi Galería</h2>
 
             <button
-                id="nuevaComparativa"
-                class="estad-boton estad-primario"
-                type="button"
-            >
-                + Nueva comparativa
-            </button>
-
-        </div>
-
-        <div id="contenedorComparativas"></div>
-
-    </section>
-
-    <!-- FORMULARIO -->
-
-    <form
-        id="formComparativa"
-        class="estad-formulario oculto"
-    >
-
-        <h3 id="tituloFormComparativa">
-            Nueva comparativa
-        </h3>
-
-        <div class="estad-campo">
-
-            <label for="nombreComparativa">
-                Nombre de la comparativa
-            </label>
-
-            <input
-                id="nombreComparativa"
-                type="text"
-                placeholder="Ejemplo: Street Fighter - Personajes"
-                maxlength="100"
-                required
-            >
-
-        </div>
-
-        <label class="estad-opcion">
-
-            <input
-                id="incluirSubcarpetas"
-                type="checkbox"
-            >
-
-            Incluir archivos de las subcarpetas
-
-        </label>
-
-        <div class="estad-campo">
-
-            <label for="buscarCarpetaComparativa">
-                Seleccionar carpetas
-            </label>
-
-            <input
-                id="buscarCarpetaComparativa"
-                type="search"
-                placeholder="Buscar carpeta..."
-            >
-
-        </div>
-
-        <div
-            id="selectorCarpetas"
-            class="estad-selector-carpetas"
-        ></div>
-
-        <p
-            id="cantidadCarpetasSeleccionadas"
-            class="estad-contador"
-        >
-            0 carpetas seleccionadas
-        </p>
-
-        <div class="estad-acciones">
-
-            <button
-                type="submit"
-                class="estad-boton estad-primario"
-            >
-                Guardar comparativa
-            </button>
-
-            <button
-                id="cancelarComparativa"
-                type="button"
+                id="cerrarEstadisticas"
                 class="estad-boton"
+                type="button"
             >
-                Cancelar
+                ✕ Cerrar
             </button>
 
         </div>
 
-    </form>
 
-    <!-- RESULTADOS -->
+        <!-- LISTA DE COMPARATIVAS -->
 
-    <section id="detalleComparativa" class="oculto">
+        <section id="listaComparativas">
 
-        <div class="estad-detalle-cabecera">
+            <div class="estad-cabecera">
 
-            <div>
-                <h2 id="tituloDetalleComparativa"></h2>
+                <h2>Mis comparativas</h2>
 
-                <p
-                    id="resumenEstadisticas"
-                    class="estad-subtitulo"
-                ></p>
+                <button
+                    id="nuevaComparativa"
+                    class="estad-boton estad-primario"
+                    type="button"
+                >
+                    + Nueva comparativa
+                </button>
+
             </div>
+
+            <div id="contenedorComparativas"></div>
+
+        </section>
+
+
+        <!-- FORMULARIO DE COMPARATIVA -->
+
+        <form
+            id="formComparativa"
+            class="estad-formulario oculto"
+        >
+
+            <h3 id="tituloFormComparativa">
+                Nueva comparativa
+            </h3>
+
+            <div class="estad-campo">
+
+                <label for="nombreComparativa">
+                    Nombre de la comparativa
+                </label>
+
+                <input
+                    id="nombreComparativa"
+                    type="text"
+                    placeholder="Ejemplo: Street Fighter - Personajes"
+                    maxlength="100"
+                    required
+                >
+
+            </div>
+
+            <label class="estad-opcion">
+
+                <input
+                    id="incluirSubcarpetas"
+                    type="checkbox"
+                >
+
+                Incluir archivos de las subcarpetas
+
+            </label>
+
+            <div class="estad-campo">
+
+                <label for="buscarCarpetaComparativa">
+                    Seleccionar carpetas
+                </label>
+
+                <input
+                    id="buscarCarpetaComparativa"
+                    type="search"
+                    placeholder="Buscar carpeta..."
+                >
+
+            </div>
+
+            <div
+                id="selectorCarpetas"
+                class="estad-selector-carpetas"
+            ></div>
+
+            <p
+                id="cantidadCarpetasSeleccionadas"
+                class="estad-contador"
+            >
+                0 carpetas seleccionadas
+            </p>
 
             <div class="estad-acciones">
 
                 <button
-                    id="actualizarEstadisticas"
-                    type="button"
+                    type="submit"
+                    class="estad-boton estad-primario"
                 >
-                    ↻ Actualizar
+                    Guardar comparativa
                 </button>
 
                 <button
-                    id="editarComparativaActual"
+                    id="cancelarComparativa"
                     type="button"
+                    class="estad-boton"
                 >
-                    Editar
-                </button>
-
-                <button
-                    id="volverComparativas"
-                    type="button"
-                >
-                    ← Volver
+                    Cancelar
                 </button>
 
             </div>
 
-        </div>
+        </form>
 
-        <div class="estad-seccion">
 
-            <h3>Gráfica comparativa</h3>
+        <!-- RESULTADOS -->
 
-            <div id="graficaEstadisticas"></div>
+        <section
+            id="detalleComparativa"
+            class="oculto"
+        >
 
-        </div>
+            <div class="estad-detalle-cabecera">
 
-        <div class="estad-seccion">
+                <div>
 
-            <h3>Clasificación de carpetas</h3>
+                    <h2 id="tituloDetalleComparativa"></h2>
 
-            <div id="tablaEstadisticas"></div>
+                    <p
+                        id="resumenEstadisticas"
+                        class="estad-subtitulo"
+                    ></p>
 
-        </div>
+                </div>
 
-    </section>
+                <div class="estad-acciones">
 
-</div>
+                    <button
+                        id="actualizarEstadisticas"
+                        type="button"
+                    >
+                        ↻ Actualizar
+                    </button>
 
+                    <button
+                        id="editarComparativaActual"
+                        type="button"
+                    >
+                        Editar
+                    </button>
+
+                    <button
+                        id="volverComparativas"
+                        type="button"
+                    >
+                        ← Volver
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="estad-seccion">
+
+                <h3>Gráfica comparativa</h3>
+
+                <div id="graficaEstadisticas"></div>
+
+            </div>
+
+            <div class="estad-seccion">
+
+                <h3>Clasificación de carpetas</h3>
+
+                <div id="tablaEstadisticas"></div>
+
+            </div>
+
+        </section>
+
+    </div>
 
 
     <!-- =====================================
@@ -921,40 +923,79 @@
          RESPETAR EL ORDEN
     ====================================== -->
 
-    <!-- BASE DE DATOS -->
-
     <script src="js/database.js"></script>
-
-
-    <!-- CARPETAS -->
-
     <script src="js/carpetas.js"></script>
-
-
-    <!-- GALERIA -->
-
     <script src="js/galeria.js"></script>
-
-
-    <!-- VISOR MULTIMEDIA -->
-
     <script src="js/visor.js"></script>
-
-
-    <!-- VENTANAS EMERGENTES -->
-
     <script src="js/modales.js"></script>
-
-
-    <!-- APLICACION PRINCIPAL -->
-
     <script src="js/app.js"></script>
-
     <script src="js/vista.js"></script>
     <script src="js/estado.js"></script>
-
     <script src="js/estadisticas.js"></script>
+    <script src="js/respaldo.js"></script>
+    <script src="js/cryptomator.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="js/google-drive.js"></script>
+
+
+    <!-- =====================================
+         FUNCIONAMIENTO MENU HAMBURGUESA
+    ====================================== -->
+
+    <script>
+        (() => {
+            "use strict";
+
+            const boton = document.getElementById(
+                "btnMenuAjustes"
+            );
+
+            const panel = document.getElementById(
+                "panelMenuAjustes"
+            );
+
+            if (!boton || !panel) return;
+
+            function mostrarMenu(abierto) {
+                panel.hidden = !abierto;
+
+                boton.setAttribute(
+                    "aria-expanded",
+                    String(abierto)
+                );
+
+                boton.textContent = abierto ? "✕" : "☰";
+            }
+
+            boton.addEventListener("click", evento => {
+                evento.stopPropagation();
+                mostrarMenu(panel.hidden);
+            });
+
+            panel.addEventListener("click", evento => {
+                if (evento.target.closest("button")) {
+                    mostrarMenu(false);
+                }
+            });
+
+            document.addEventListener("click", evento => {
+                if (
+                    !panel.hidden &&
+                    !boton.contains(evento.target) &&
+                    !panel.contains(evento.target)
+                ) {
+                    mostrarMenu(false);
+                }
+            });
+
+            document.addEventListener("keydown", evento => {
+                if (evento.key === "Escape") {
+                    mostrarMenu(false);
+                }
+            });
+        })();
+    </script>
 
 </body>
-
 </html>
+

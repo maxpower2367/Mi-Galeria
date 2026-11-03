@@ -147,8 +147,15 @@ function actualizarListaSubida() {
             : "Subir archivos";
 }
 
+/* ==========================================
+   GUARDAR Y COPIAR A CRYPTOMATOR
+========================================== */
+
 async function confirmarArchivosSubida() {
-    if (subidaEnProceso || archivosPendientes.length === 0) {
+    if (
+        subidaEnProceso ||
+        archivosPendientes.length === 0
+    ) {
         return;
     }
 
@@ -169,16 +176,43 @@ async function confirmarArchivosSubida() {
             $("estadoSubida").textContent =
                 `Subiendo ${guardados + 1} de ${archivos.length}...`;
 
-            await guardar("archivos", {
+            const registro = {
                 id: crearId(),
                 nombre: archivo.name,
                 tipo: archivo.type,
                 carpeta: destino,
                 fecha: Date.now(),
                 datos: archivo
-            });
+            };
+
+            // Guardar en IndexedDB.
+            await guardar("archivos", registro);
 
             guardados++;
+
+            // Copiar a la boveda si esta conectada.
+            if (
+                window.MiGaleriaCryptomator?.disponible()
+            ) {
+                try {
+                    await window.MiGaleriaCryptomator
+                        .copiarArchivoABoveda(registro);
+
+                } catch (error) {
+                    console.error(
+                        "Copia pendiente en Cryptomator:",
+                        error
+                    );
+
+                    alert(
+                        "Archivo guardado localmente, " +
+                        "pero no copiado a la boveda: " +
+                        archivo.name +
+                        ". Usa 'Guardar en boveda' " +
+                        "para reintentar."
+                    );
+                }
+            }
         }
 
         archivosPendientes = [];

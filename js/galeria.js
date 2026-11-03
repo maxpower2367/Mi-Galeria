@@ -78,6 +78,7 @@ function ordenarElementos(elementos) {
             default:
                 return (b.fecha || 0) - (a.fecha || 0);
         }
+
     });
 }
 
@@ -135,9 +136,7 @@ function mostrarArchivos(archivos) {
 
     archivosVisibles.forEach(archivo => {
 
-        /* ==================================
-           CONTENEDOR DEL ARCHIVO
-        ================================== */
+        /* CONTENEDOR DEL ARCHIVO */
 
         const elemento = document.createElement("div");
 
@@ -147,19 +146,13 @@ function mostrarArchivos(archivos) {
             elemento.classList.add("seleccionado");
         }
 
-
-        /* ==================================
-           CREAR URL DE MINIATURA
-        ================================== */
+        /* CREAR URL DE MINIATURA */
 
         const url = URL.createObjectURL(archivo.datos);
 
         urlsMiniaturas.push(url);
 
-
-        /* ==================================
-           CREAR IMAGEN O VIDEO
-        ================================== */
+        /* CREAR IMAGEN O VIDEO */
 
         let multimedia;
 
@@ -184,34 +177,23 @@ function mostrarArchivos(archivos) {
 
         elemento.appendChild(multimedia);
 
-
-        /* ==================================
-           BOTON DE TRES PUNTOS
-        ================================== */
+        /* BOTON DE TRES PUNTOS */
 
         elemento.appendChild(
             crearBotonMenu("archivo", archivo)
         );
 
-
-        /* ==================================
-           NOMBRE DEL ARCHIVO
-        ================================== */
+        /* NOMBRE DEL ARCHIVO */
 
         const nombreArchivo = document.createElement("div");
 
         nombreArchivo.className = "archivo-nombre";
-
         nombreArchivo.textContent = archivo.nombre;
-
         nombreArchivo.title = archivo.nombre;
 
         elemento.appendChild(nombreArchivo);
 
-
-        /* ==================================
-           ABRIR VISOR O SELECCIONAR
-        ================================== */
+        /* ABRIR VISOR O SELECCIONAR */
 
         elemento.onclick = () => {
 
@@ -234,10 +216,7 @@ function mostrarArchivos(archivos) {
             }
         };
 
-
-        /* ==================================
-           AGREGAR ARCHIVO A LA GALERIA
-        ================================== */
+        /* AGREGAR ARCHIVO A LA GALERIA */
 
         galeria.appendChild(elemento);
     });
@@ -250,41 +229,139 @@ function mostrarArchivos(archivos) {
 
 async function subirArchivos(evento) {
 
-    const archivos = Array.from(evento.target.files);
+    const archivos = Array.from(
+        evento.target.files || []
+    );
 
-    if (archivos.length === 0) return;
+    if (archivos.length === 0) {
+        return;
+    }
+
+    const botonSubir = $("btnSubirArchivos");
+
+    if (botonSubir) {
+        botonSubir.disabled = true;
+    }
+
+    let guardados = 0;
+    let copiados = 0;
+    let erroresCopia = 0;
 
     try {
 
         for (const archivo of archivos) {
 
+            /* VALIDAR ARCHIVO MULTIMEDIA */
+
+            const tipo = archivo.type || "";
+
             if (
-                !archivo.type.startsWith("image/") &&
-                !archivo.type.startsWith("video/")
+                !tipo.startsWith("image/") &&
+                !tipo.startsWith("video/")
             ) {
+                console.warn(
+                    "Archivo no compatible:",
+                    archivo.name
+                );
+
                 continue;
             }
 
-            await guardar("archivos", {
+            /* CREAR REGISTRO */
+
+            const nuevoArchivo = {
 
                 id: crearId(),
                 nombre: archivo.name,
-                tipo: archivo.type,
+                tipo: tipo,
                 carpeta: carpetaActual,
                 fecha: Date.now(),
                 datos: archivo
-            });
+
+            };
+
+            /* GUARDAR EN INDEXEDDB */
+
+            await guardar("archivos", nuevoArchivo);
+
+            guardados++;
+
+            /* COPIAR A CRYPTOMATOR SI ESTA CONECTADO */
+
+            if (
+                window.MiGaleriaCryptomator &&
+                window.MiGaleriaCryptomator.disponible()
+            ) {
+
+                try {
+
+                    const resultado =
+                        await window.MiGaleriaCryptomator
+                            .copiarArchivoABoveda(nuevoArchivo);
+
+                    if (resultado) {
+                        copiados++;
+                    }
+
+                } catch (error) {
+
+                    erroresCopia++;
+
+                    console.error(
+                        "Error al copiar a Cryptomator:",
+                        error
+                    );
+                }
+            }
         }
+
+        /* ACTUALIZAR GALERIA */
 
         await mostrarContenido();
 
+        /* INFORMAR RESULTADO */
+
+        if (erroresCopia > 0) {
+
+            alert(
+                guardados + " archivo(s) guardado(s) " +
+                "en Mi Galeria.\n\n" +
+                copiados + " copiado(s) a Cryptomator.\n" +
+                erroresCopia + " copia(s) fallida(s).\n\n" +
+                "Los archivos guardados localmente " +
+                "no se han eliminado."
+            );
+
+        } else if (
+            guardados > 0 &&
+            window.MiGaleriaCryptomator &&
+            window.MiGaleriaCryptomator.disponible()
+        ) {
+
+            console.log(
+                guardados + " archivo(s) guardado(s). " +
+                copiados + " copiado(s) a Cryptomator."
+            );
+        }
+
     } catch (error) {
+
+        console.error(
+            "Error al subir archivos:",
+            error
+        );
 
         mostrarError(error);
 
     } finally {
 
-        evento.target.value = "";
+        if (evento.target) {
+            evento.target.value = "";
+        }
+
+        if (botonSubir) {
+            botonSubir.disabled = false;
+        }
     }
 }
 
@@ -659,7 +736,6 @@ async function eliminarSeleccionados() {
     const cantidad = seleccionados.size;
 
     if (!confirm(`¿Eliminar ${cantidad} archivo(s)?`)) {
-
         return;
     }
 
