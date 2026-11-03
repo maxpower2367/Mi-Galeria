@@ -148,10 +148,11 @@ function actualizarListaSubida() {
 }
 
 /* ==========================================
-   GUARDAR Y COPIAR A CRYPTOMATOR
+   GUARDAR EN INDEXEDDB Y GOOGLE DRIVE
 ========================================== */
 
 async function confirmarArchivosSubida() {
+
     if (
         subidaEnProceso ||
         archivosPendientes.length === 0
@@ -170,11 +171,17 @@ async function confirmarArchivosSubida() {
     $("btnSeleccionarArchivos").disabled = true;
 
     let guardados = 0;
+    let sincronizados = 0;
+    let pendientes = 0;
+
+    const errores = [];
 
     try {
+
         for (const archivo of archivos) {
+
             $("estadoSubida").textContent =
-                `Subiendo ${guardados + 1} de ${archivos.length}...`;
+                `Guardando ${guardados + 1} de ${archivos.length}...`;
 
             const registro = {
                 id: crearId(),
@@ -182,59 +189,157 @@ async function confirmarArchivosSubida() {
                 tipo: archivo.type,
                 carpeta: destino,
                 fecha: Date.now(),
-                datos: archivo
+                datos: archivo,
+
+                driveId: null,
+                sincronizacion: "pendiente"
             };
 
-            // Guardar en IndexedDB.
+            // ==================================
+            // GUARDAR EN INDEXEDDB
+            // ==================================
+
             await guardar("archivos", registro);
 
             guardados++;
 
-            // Copiar a la boveda si esta conectada.
-            if (
-                window.MiGaleriaCryptomator?.disponible()
-            ) {
-                try {
-                    await window.MiGaleriaCryptomator
-                        .copiarArchivoABoveda(registro);
+            // Retirar el archivo de la lista pendiente
+            // para evitar duplicados si falla otro.
 
-                } catch (error) {
-                    console.error(
-                        "Copia pendiente en Cryptomator:",
-                        error
+            archivosPendientes.shift();
+
+            // ==================================
+            // SUBIR A GOOGLE DRIVE
+            // ==================================
+
+            const drive = window.MiGaleriaGoogleDrive;
+
+            if (!drive || !drive.disponible()) {
+
+                pendientes++;
+
+                $("estadoSubida").textContent =
+                    "Google Drive desconectado. " +
+                    "Archivo guardado localmente.";
+
+                continue;
+            }
+
+            try {
+
+                $("estadoSubida").textContent =
+                    `Subiendo a Google Drive: ${archivo.name}`;
+
+                const resultado =
+                    await drive.subirArchivo(archivo);
+
+                // Guardar el ID del archivo
+                // que Google Drive ha devuelto.
+
+                registro.driveId = resultado.id;
+                registro.sincronizacion = "sincronizado";
+
+                try {
+
+                    await guardar("archivos", registro);
+
+                    sincronizados++;
+
+                } catch (errorLocal) {
+
+                    // El archivo ya llego a Drive.
+                    // No repetir la subida automaticamente.
+
+                    pendientes++;
+
+                    errores.push(
+                        archivo.name +
+                        ": subido a Drive, pero no " +
+                        "se pudo registrar su ID local."
                     );
 
-                    alert(
-                        "Archivo guardado localmente, " +
-                        "pero no copiado a la boveda: " +
-                        archivo.name +
-                        ". Usa 'Guardar en boveda' " +
-                        "para reintentar."
+                    console.error(
+                        "Error al registrar ID de Drive:",
+                        resultado.id,
+                        errorLocal
                     );
                 }
+
+            } catch (error) {
+
+                pendientes++;
+
+                errores.push(
+                    archivo.name + ": " + error.message
+                );
+
+                console.error(
+                    "Error al subir a Google Drive:",
+                    error
+                );
             }
         }
 
-        archivosPendientes = [];
-        $("subirArchivos").value = "";
+        // ==================================
+        // ACTUALIZAR LA GALERIA
+        // ==================================
 
         await mostrarContenido();
 
-        $("estadoSubida").textContent =
-            `${guardados} archivo(s) guardado(s) correctamente.`;
+        // ==================================
+        // MOSTRAR RESULTADO
+        // ==================================
 
-        cerrarModal("modalSubida");
+        let mensaje =
+            "Resultado de la subida:\n\n" +
+            "Guardados localmente: " + guardados + "\n" +
+            "Subidos y registrados en Google Drive: " +
+            sincronizados + "\n" +
+            "Pendientes o sin confirmar: " + pendientes;
+
+        if (errores.length > 0) {
+
+            mensaje +=
+                "\n\nDetalles:\n" +
+                errores.slice(0, 5).join("\n");
+        }
+
+        if (pendientes > 0) {
+
+            mensaje +=
+                "\n\nLos archivos locales se conservan." +
+                "\nLos pendientes aun no se reintentan " +
+                "automaticamente.";
+        }
+
+        $("estadoSubida").textContent =
+            `${guardados} guardados localmente, ` +
+            `${sincronizados} subidos a Drive, ` +
+            `${pendientes} pendientes.`;
+
+        alert(mensaje);
+
+        if (archivosPendientes.length === 0) {
+            $("subirArchivos").value = "";
+            cerrarModal("modalSubida");
+        }
 
     } catch (error) {
+
+        console.error(
+            "Error durante la subida:",
+            error
+        );
+
         mostrarError(error);
 
-        archivosPendientes = archivos.slice(guardados);
-
         $("estadoSubida").textContent =
-            `Se guardaron ${guardados} de ${archivos.length}. ` +
+            `Se guardaron ${guardados} de ${archivos.length} ` +
+            "archivos localmente. " +
             "Puedes reintentar los restantes.";
 
     } finally {
+
         subidaEnProceso = false;
 
         $("cancelarModalSubida").disabled = false;
