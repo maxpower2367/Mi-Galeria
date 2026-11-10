@@ -1,10 +1,10 @@
 
 "use strict";
 
-// ==========================================
-// MI GALERIA - GOOGLE DRIVE
-// Conexion OAuth y subida de archivos
-// ==========================================
+/* ==========================================
+   MI GALERIA - GOOGLE DRIVE
+   Conexion OAuth, subida y consulta
+========================================== */
 
 const GOOGLE_CLIENT_ID =
     "103011390287-u2coot9i3p4h1p0r3dd1mmm8ifaub559.apps.googleusercontent.com";
@@ -16,6 +16,10 @@ let googleTokenClient = null;
 let googleAccessToken = null;
 let googleTokenExpira = 0;
 
+/* ==========================================
+   COMPROBAR CONEXION
+========================================== */
+
 function googleDriveDisponible() {
     return Boolean(
         googleAccessToken &&
@@ -23,7 +27,12 @@ function googleDriveDisponible() {
     );
 }
 
+/* ==========================================
+   ACTUALIZAR ESTADO
+========================================== */
+
 function actualizarEstadoGoogleDrive(mensaje) {
+
     const estado = document.getElementById(
         "estadoGoogleDrive"
     );
@@ -32,14 +41,28 @@ function actualizarEstadoGoogleDrive(mensaje) {
         estado.textContent = mensaje;
     }
 
+    const conectado = googleDriveDisponible();
+
     const botonPrueba = document.getElementById(
         "btnPruebaGoogleDrive"
     );
 
+    const botonListar = document.getElementById(
+        "btnListarGoogleDrive"
+    );
+
     if (botonPrueba) {
-        botonPrueba.disabled = !googleDriveDisponible();
+        botonPrueba.disabled = !conectado;
+    }
+
+    if (botonListar) {
+        botonListar.disabled = !conectado;
     }
 }
+
+/* ==========================================
+   INICIAR GOOGLE DRIVE
+========================================== */
 
 function iniciarGoogleDrive() {
 
@@ -48,7 +71,7 @@ function iniciarGoogleDrive() {
     );
 
     if (!menu) {
-        console.error("No se encontro el menu.");
+        console.error("No se encontro el menu de ajustes.");
         return;
     }
 
@@ -58,52 +81,85 @@ function iniciarGoogleDrive() {
         return;
     }
 
+    /* BOTON CONECTAR */
+
     const boton = document.createElement("button");
+
     boton.id = "btnConectarGoogleDrive";
     boton.type = "button";
     boton.textContent = "Conectar Google Drive";
 
+    /* ESTADO */
+
     const estado = document.createElement("div");
+
     estado.id = "estadoGoogleDrive";
     estado.style.fontSize = "12px";
     estado.style.padding = "8px";
     estado.textContent = "Google Drive desconectado";
 
+    /* BOTON SUBIR PRUEBA */
+
     const botonPrueba = document.createElement("button");
+
     botonPrueba.id = "btnPruebaGoogleDrive";
     botonPrueba.type = "button";
     botonPrueba.textContent = "Subir prueba a Google Drive";
     botonPrueba.disabled = true;
 
+    /* BOTON CONSULTAR ARCHIVOS */
+
+    const botonListar = document.createElement("button");
+
+    botonListar.id = "btnListarGoogleDrive";
+    botonListar.type = "button";
+    botonListar.textContent = "Consultar archivos de Google Drive";
+    botonListar.disabled = true;
+
+    /* SELECTOR DE ARCHIVOS */
+
     const selector = document.createElement("input");
+
     selector.type = "file";
     selector.accept = "image/*,video/*";
     selector.style.display = "none";
+
+    /* INSERTAR CONTROLES */
 
     const titulo = menu.querySelector(
         ".menu-ajustes-titulo"
     );
 
     if (titulo) {
+
         titulo.after(
             boton,
             estado,
             botonPrueba,
+            botonListar,
             selector
         );
+
     } else {
+
         menu.prepend(
             boton,
             estado,
             botonPrueba,
+            botonListar,
             selector
         );
     }
 
+    /* ======================================
+       CONECTAR CON GOOGLE
+    ====================================== */
+
     boton.addEventListener("click", () => {
 
         if (!window.google?.accounts?.oauth2) {
-            alert("Google aun no ha cargado.");
+
+            alert("Google OAuth aun no ha cargado.");
             return;
         }
 
@@ -113,6 +169,7 @@ function iniciarGoogleDrive() {
                 google.accounts.oauth2.initTokenClient({
 
                     client_id: GOOGLE_CLIENT_ID,
+
                     scope: GOOGLE_DRIVE_SCOPE,
 
                     callback: respuesta => {
@@ -121,6 +178,7 @@ function iniciarGoogleDrive() {
                             respuesta.error ||
                             !respuesta.access_token
                         ) {
+
                             actualizarEstadoGoogleDrive(
                                 "Error de autorizacion"
                             );
@@ -149,7 +207,7 @@ function iniciarGoogleDrive() {
                         );
 
                         console.log(
-                            "Google Drive autorizado."
+                            "Google Drive autorizado correctamente."
                         );
                     }
 
@@ -164,16 +222,99 @@ function iniciarGoogleDrive() {
 
     });
 
+    /* ======================================
+       CONSULTAR ARCHIVOS
+    ====================================== */
+
+    botonListar.addEventListener("click", async () => {
+
+        botonListar.disabled = true;
+
+        actualizarEstadoGoogleDrive(
+            "Consultando archivos..."
+        );
+
+        try {
+
+            const archivos =
+                await listarArchivosGoogleDrive();
+
+            console.table(
+                archivos.map(archivo => ({
+
+                    nombre: archivo.name,
+
+                    tipo: archivo.mimeType,
+
+                    id: archivo.id,
+
+                    carpetaPadre:
+                        (archivo.parents || []).join(", ")
+
+                }))
+            );
+
+            actualizarEstadoGoogleDrive(
+                "Consulta completada: " +
+                archivos.length +
+                " archivo(s)."
+            );
+
+            alert(
+                "Consulta completada.\n\n" +
+                "Archivos encontrados: " +
+                archivos.length +
+                "\n\n" +
+                "Presiona F12 y abre Console " +
+                "para ver los resultados.\n\n" +
+                "No se modifico ningun archivo."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Error consultando Google Drive:",
+                error
+            );
+
+            actualizarEstadoGoogleDrive(
+                "Error al consultar Google Drive"
+            );
+
+            alert(
+                "No se pudo consultar Google Drive:\n" +
+                error.message
+            );
+
+        } finally {
+
+            botonListar.disabled =
+                !googleDriveDisponible();
+        }
+
+    });
+
+    /* ======================================
+       SELECCIONAR ARCHIVO DE PRUEBA
+    ====================================== */
+
     botonPrueba.addEventListener("click", () => {
+
         if (!googleDriveDisponible()) {
+
             actualizarEstadoGoogleDrive(
                 "Debes reconectar Google Drive"
             );
+
             return;
         }
 
         selector.click();
     });
+
+    /* ======================================
+       SUBIR ARCHIVO DE PRUEBA
+    ====================================== */
 
     selector.addEventListener("change", async () => {
 
@@ -222,22 +363,25 @@ function iniciarGoogleDrive() {
             botonPrueba.disabled =
                 !googleDriveDisponible();
         }
+
     });
 }
 
-// ==========================================
-// SUBIR ARCHIVO A GOOGLE DRIVE
-// ==========================================
+/* ==========================================
+   SUBIR ARCHIVO A GOOGLE DRIVE
+========================================== */
 
 async function subirArchivoGoogleDrive(archivo) {
 
     if (!googleDriveDisponible()) {
+
         throw new Error(
             "Google Drive desconectado o sesion vencida."
         );
     }
 
     if (!(archivo instanceof Blob)) {
+
         throw new Error(
             "El archivo no tiene un formato valido."
         );
@@ -280,6 +424,7 @@ async function subirArchivoGoogleDrive(archivo) {
             method: "POST",
 
             headers: {
+
                 Authorization:
                     "Bearer " + googleAccessToken,
 
@@ -295,8 +440,11 @@ async function subirArchivoGoogleDrive(archivo) {
     let resultado;
 
     try {
+
         resultado = await respuesta.json();
+
     } catch {
+
         throw new Error(
             "Google Drive devolvio una respuesta invalida."
         );
@@ -305,6 +453,7 @@ async function subirArchivoGoogleDrive(archivo) {
     if (!respuesta.ok) {
 
         if (respuesta.status === 401) {
+
             googleAccessToken = null;
             googleTokenExpira = 0;
 
@@ -320,6 +469,7 @@ async function subirArchivoGoogleDrive(archivo) {
     }
 
     if (!resultado.id) {
+
         throw new Error(
             "Google Drive no devolvio el ID del archivo."
         );
@@ -328,15 +478,116 @@ async function subirArchivoGoogleDrive(archivo) {
     return resultado;
 }
 
-// ==========================================
-// ACCESO DESDE OTROS ARCHIVOS JAVASCRIPT
-// ==========================================
+/* ==========================================
+   CONSULTAR ARCHIVOS DE GOOGLE DRIVE
+========================================== */
+
+async function listarArchivosGoogleDrive() {
+
+    if (!googleDriveDisponible()) {
+
+        throw new Error(
+            "Debes conectar Google Drive primero."
+        );
+    }
+
+    const archivos = [];
+
+    let pagina = "";
+
+    do {
+
+        const parametros = new URLSearchParams({
+
+            pageSize: "1000",
+
+            fields:
+                "nextPageToken,files(" +
+                "id,name,mimeType,parents,size," +
+                "createdTime,modifiedTime,trashed)",
+
+            q: "trashed = false",
+
+            spaces: "drive"
+
+        });
+
+        if (pagina) {
+            parametros.set("pageToken", pagina);
+        }
+
+        const respuesta = await fetch(
+
+            "https://www.googleapis.com/drive/v3/files?" +
+            parametros.toString(),
+
+            {
+                headers: {
+                    Authorization:
+                        "Bearer " + googleAccessToken
+                }
+            }
+        );
+
+        let datos;
+
+        try {
+
+            datos = await respuesta.json();
+
+        } catch {
+
+            throw new Error(
+                "Google Drive devolvio una respuesta invalida."
+            );
+        }
+
+        if (!respuesta.ok) {
+
+            if (respuesta.status === 401) {
+
+                googleAccessToken = null;
+                googleTokenExpira = 0;
+
+                actualizarEstadoGoogleDrive(
+                    "Sesion vencida. Reconecta Google Drive."
+                );
+            }
+
+            throw new Error(
+                datos.error?.message ||
+                "Error HTTP " + respuesta.status
+            );
+        }
+
+        archivos.push(...(datos.files || []));
+
+        pagina = datos.nextPageToken || "";
+
+    } while (pagina);
+
+    return archivos;
+}
+
+/* ==========================================
+   FUNCIONES DISPONIBLES PARA OTROS JS
+========================================== */
 
 window.MiGaleriaGoogleDrive = {
+
     disponible: googleDriveDisponible,
+
     subirArchivo: subirArchivoGoogleDrive,
+
+    listarArchivos: listarArchivosGoogleDrive,
+
     actualizarEstado: actualizarEstadoGoogleDrive
+
 };
+
+/* ==========================================
+   INICIALIZAR
+========================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
