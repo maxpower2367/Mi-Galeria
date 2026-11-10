@@ -20,6 +20,7 @@ function iniciarEventos() {
     $("buscador").addEventListener(
         "input",
         async evento => {
+
             busquedaActual = evento.target.value
                 .trim()
                 .toLowerCase();
@@ -35,6 +36,7 @@ function iniciarEventos() {
     $("ordenar").addEventListener(
         "change",
         async evento => {
+
             ordenActual = evento.target.value;
 
             try {
@@ -100,12 +102,14 @@ function iniciarEventos() {
 }
 
 /* ==========================================
-   RECUPERAR ARCHIVOS DESDE GOOGLE DRIVE
+   SINCRONIZACION GOOGLE DRIVE
 ========================================== */
 
 let recuperacionEnProceso = false;
 
-async function recuperarArchivosGoogleDrive() {
+async function recuperarArchivosGoogleDrive(
+    automatico = false
+) {
 
     if (recuperacionEnProceso) return;
 
@@ -113,22 +117,26 @@ async function recuperarArchivosGoogleDrive() {
 
     if (!drive || !drive.disponible()) {
 
-        alert(
-            "Primero debes conectar Google Drive."
-        );
+        if (!automatico) {
+            alert(
+                "Primero debes conectar Google Drive."
+            );
+        }
 
         return;
     }
 
-    const confirmar = confirm(
-        "Se consultaran los archivos de Google Drive " +
-        "y se descargaran los que no esten registrados " +
-        "localmente.\n\n" +
-        "No se eliminaran archivos locales.\n\n" +
-        "¿Continuar?"
-    );
+    if (!automatico) {
 
-    if (!confirmar) return;
+        const confirmar = confirm(
+            "Se consultaran los archivos de Google Drive " +
+            "y se recuperaran los que falten.\n\n" +
+            "No se eliminaran archivos.\n\n" +
+            "¿Continuar?"
+        );
+
+        if (!confirmar) return;
+    }
 
     recuperacionEnProceso = true;
 
@@ -136,14 +144,19 @@ async function recuperarArchivosGoogleDrive() {
 
     if (boton) {
         boton.disabled = true;
-        boton.textContent = "Recuperando archivos...";
+        boton.textContent = "Sincronizando...";
     }
 
     let recuperados = 0;
     let existentes = 0;
+    let vinculados = 0;
     let errores = 0;
 
     try {
+
+        drive.actualizarEstado(
+            "Consultando Google Drive..."
+        );
 
         const archivosDrive =
             await drive.listarArchivos();
@@ -157,24 +170,47 @@ async function recuperarArchivosGoogleDrive() {
                 .map(a => a.driveId)
         );
 
-        const nombresLocales = new Set(
-            archivosLocales.map(a =>
-                a.nombre + "|" +
-                (a.datos?.size ?? "") + "|" +
-                (a.tipo || "")
-            )
+        const archivosPorClave = new Map();
+
+        for (const archivo of archivosLocales) {
+
+            if (archivo.driveId) continue;
+
+            const clave =
+                archivo.nombre + "|" +
+                (archivo.datos?.size ?? "") + "|" +
+                (archivo.tipo || "");
+
+            if (!archivosPorClave.has(clave)) {
+                archivosPorClave.set(clave, []);
+            }
+
+            archivosPorClave.get(clave).push(archivo);
+        }
+
+        const archivosValidos = archivosDrive.filter(
+            archivo => {
+
+                const tipo = archivo.mimeType || "";
+
+                return (
+                    tipo.startsWith("image/") ||
+                    tipo.startsWith("video/")
+                );
+            }
         );
 
-        for (const archivo of archivosDrive) {
+        let procesados = 0;
 
-            const tipo = archivo.mimeType || "";
+        for (const archivo of archivosValidos) {
 
-            if (
-                !tipo.startsWith("image/") &&
-                !tipo.startsWith("video/")
-            ) {
-                continue;
-            }
+            procesados++;
+
+            drive.actualizarEstado(
+                "Sincronizando " +
+                procesados + " de " +
+                archivosValidos.length
+            );
 
             if (idsRegistrados.has(archivo.id)) {
                 existentes++;
@@ -188,33 +224,64 @@ async function recuperarArchivosGoogleDrive() {
                         archivo.id
                     );
 
+                const tipo = archivo.mimeType || "";
+
                 const clave =
                     archivo.name + "|" +
                     datos.size + "|" +
                     tipo;
 
-                if (nombresLocales.has(clave)) {
-                    existentes++;
+                const candidatos =
+                    archivosPorClave.get(clave) || [];
+
+                if (candidatos.length > 0) {
+
+                    const local = candidatos.shift();
+
+                    // Se conserva el archivo local.
+                    // Solo se registra su ID de Drive.
+                    // La coincidencia por nombre,
+                    // tamaño y tipo es provisional.
+
+                    local.driveId = archivo.id;
+                    local.sincronizacion =
+                        "sincronizado";
+
+                    await guardar("archivos", local);
+
+                    idsRegistrados.add(archivo.id);
+                    vinculados++;
+
                     continue;
                 }
 
                 const registro = {
+
                     id: crearId(),
+
                     nombre: archivo.name,
+
                     tipo: tipo,
+
                     carpeta: null,
+
                     fecha: archivo.createdTime
                         ? Date.parse(archivo.createdTime)
                         : Date.now(),
+
                     datos: datos,
+
                     driveId: archivo.id,
+
                     sincronizacion: "sincronizado"
                 };
 
-                await guardar("archivos", registro);
+                await guardar(
+                    "archivos",
+                    registro
+                );
 
                 idsRegistrados.add(archivo.id);
-                nombresLocales.add(clave);
 
                 recuperados++;
 
@@ -232,25 +299,46 @@ async function recuperarArchivosGoogleDrive() {
 
         await mostrarContenido();
 
-        alert(
-            "Recuperacion terminada.\n\n" +
-            "Archivos recuperados: " +
-            recuperados + "\n" +
-            "Archivos existentes: " +
-            existentes + "\n" +
-            "Errores: " + errores + "\n\n" +
-            "Los archivos locales se conservaron."
+        const resumen =
+            "Recuperados: " + recuperados +
+            "\nYa registrados: " + existentes +
+            "\nVinculados: " + vinculados +
+            "\nErrores: " + errores;
+
+        console.log(
+            "Sincronizacion Google Drive:\n" +
+            resumen
         );
+
+        drive.actualizarEstado(
+            errores > 0
+                ? "Sincronizacion parcial: " +
+                  errores + " error(es)"
+                : "Google Drive sincronizado"
+        );
+
+        if (!automatico || errores > 0) {
+
+            alert(
+                "Sincronizacion terminada.\n\n" +
+                resumen + "\n\n" +
+                "No se eliminaron archivos locales."
+            );
+        }
 
     } catch (error) {
 
         console.error(
-            "Error consultando Google Drive:",
+            "Error de sincronizacion:",
             error
         );
 
+        drive.actualizarEstado(
+            "Error al sincronizar Google Drive"
+        );
+
         alert(
-            "No se pudo completar la recuperacion:\n" +
+            "No se pudo completar la sincronizacion:\n" +
             error.message
         );
 
@@ -259,7 +347,9 @@ async function recuperarArchivosGoogleDrive() {
         recuperacionEnProceso = false;
 
         if (boton) {
+
             boton.disabled = false;
+
             boton.textContent =
                 "Recuperar desde Google Drive";
         }
@@ -267,7 +357,7 @@ async function recuperarArchivosGoogleDrive() {
 }
 
 /* ==========================================
-   BOTON DE RECUPERACION
+   BOTON DE RECUPERACION MANUAL
 ========================================== */
 
 function iniciarBotonRecuperacion() {
@@ -283,16 +373,20 @@ function iniciarBotonRecuperacion() {
 
     if ($("btnRecuperarGoogleDrive")) return;
 
-    const boton = document.createElement("button");
+    const boton = document.createElement(
+        "button"
+    );
 
     boton.id = "btnRecuperarGoogleDrive";
+
     boton.type = "button";
+
     boton.textContent =
         "Recuperar desde Google Drive";
 
     boton.addEventListener(
         "click",
-        recuperarArchivosGoogleDrive
+        () => recuperarArchivosGoogleDrive(false)
     );
 
     const botonListar = $("btnListarGoogleDrive");
@@ -302,6 +396,26 @@ function iniciarBotonRecuperacion() {
     } else {
         menu.appendChild(boton);
     }
+}
+
+/* ==========================================
+   RECUPERACION AUTOMATICA
+========================================== */
+
+function iniciarSincronizacionAutomatica() {
+
+    window.addEventListener(
+        "miGaleriaDriveConectado",
+        async () => {
+
+            console.log(
+                "Google Drive conectado. " +
+                "Iniciando recuperacion automatica..."
+            );
+
+            await recuperarArchivosGoogleDrive(true);
+        }
+    );
 }
 
 /* ==========================================
@@ -318,6 +432,8 @@ async function iniciar() {
 
         iniciarBotonRecuperacion();
 
+        iniciarSincronizacionAutomatica();
+
         await mostrarContenido();
 
         console.log(
@@ -327,6 +443,7 @@ async function iniciar() {
     } catch (error) {
 
         console.error(error);
+
         mostrarError(error);
     }
 }

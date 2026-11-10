@@ -206,8 +206,8 @@ function iniciarGoogleDrive() {
                             "Google Drive conectado"
                         );
 
-                        console.log(
-                            "Google Drive autorizado correctamente."
+                        window.dispatchEvent(
+                            new Event("miGaleriaDriveConectado")
                         );
                     }
 
