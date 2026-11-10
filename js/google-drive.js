@@ -593,3 +593,62 @@ document.addEventListener(
     "DOMContentLoaded",
     iniciarGoogleDrive
 );
+
+
+
+/* ==========================================
+   DESCARGAR ARCHIVO DESDE GOOGLE DRIVE
+========================================== */
+
+async function descargarArchivoGoogleDrive(driveId) {
+
+    if (!googleDriveDisponible()) {
+        throw new Error(
+            "Debes conectar Google Drive primero."
+        );
+    }
+
+    if (!driveId || typeof driveId !== "string") {
+        throw new Error(
+            "El ID del archivo de Drive no es valido."
+        );
+    }
+
+    const respuesta = await fetch(
+        "https://www.googleapis.com/drive/v3/files/" +
+        encodeURIComponent(driveId) +
+        "?alt=media",
+        {
+            headers: {
+                Authorization:
+                    "Bearer " + googleAccessToken
+            }
+        }
+    );
+
+    if (!respuesta.ok) {
+
+        if (respuesta.status === 401) {
+            googleAccessToken = null;
+            googleTokenExpira = 0;
+
+            actualizarEstadoGoogleDrive(
+                "Sesion vencida. Reconecta Google Drive."
+            );
+        }
+
+        throw new Error(
+            "No se pudo descargar el archivo. " +
+            "Error HTTP " + respuesta.status
+        );
+    }
+
+    return await respuesta.blob();
+}
+
+/* ==========================================
+   EXPONER FUNCION DE DESCARGA
+========================================== */
+
+window.MiGaleriaGoogleDrive.descargarArchivo =
+    descargarArchivoGoogleDrive;
