@@ -815,15 +815,21 @@ async function sincronizarNuevosDesdeGoogleDrive() {
 }
 
 /* ==========================================
-   SINCRONIZAR AL CONECTAR GOOGLE DRIVE
+   SINCRONIZACION AUTOMATICA TEMPORALMENTE
+   DESACTIVADA
+
+   Evita recuperar carpetas antiguas de Drive
+   mientras corregimos la sincronizacion.
+
+   No elimina archivos de Google Drive.
 ========================================== */
 
-window.addEventListener(
-    "miGaleriaDriveConectado",
-    () => {
-        void sincronizarNuevosDesdeGoogleDrive();
-    }
-);
+// window.addEventListener(
+//     "miGaleriaDriveConectado",
+//     () => {
+//         void sincronizarNuevosDesdeGoogleDrive();
+//     }
+// );
 
 /* ==========================================
    INICIAR APLICACION

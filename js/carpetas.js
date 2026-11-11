@@ -524,14 +524,17 @@ async function cambiarPortadaCarpeta(carpeta) {
 
         const cuadricula = document.createElement("div");
 
-        Object.assign(cuadricula.style, {
-            display: "grid",
-            gridTemplateColumns:
-                "repeat(auto-fill, minmax(125px, 1fr))",
-            gap: "12px",
-            padding: "18px",
-            overflowY: "auto"
-        });
+       Object.assign(cuadricula.style, {
+    display: "grid",
+    gridTemplateColumns:
+        "repeat(auto-fill, minmax(125px, 1fr))",
+    gap: "12px",
+    padding: "18px",
+    overflowY: "auto",
+    gridAutoRows: "minmax(160px, auto)",
+    alignContent: "start",
+    alignItems: "start"
+});
 
         const pie = document.createElement("div");
 
@@ -638,25 +641,31 @@ async function cambiarPortadaCarpeta(carpeta) {
             tarjeta.title = archivo.nombre;
 
             Object.assign(tarjeta.style, {
-                background: "#303030",
-                border: "2px solid transparent",
-                borderRadius: "9px",
-                overflow: "hidden",
-                padding: "0",
-                cursor: "pointer",
-                color: "#fff",
-                textAlign: "left"
-            });
+    background: "#303030",
+    border: "2px solid transparent",
+    borderRadius: "9px",
+    overflow: "hidden",
+    padding: "0",
+    cursor: "pointer",
+    color: "#fff",
+    textAlign: "left",
+    minHeight: "160px",
+    height: "auto",
+    display: "flex",
+    flexDirection: "column"
+});
 
             const imagen = document.createElement("img");
 
             Object.assign(imagen.style, {
-                width: "100%",
-                height: "120px",
-                objectFit: "cover",
-                display: "block",
-                background: "#161616"
-            });
+    width: "100%",
+    height: "120px",
+    minHeight: "120px",
+    objectFit: "cover",
+    flexShrink: "0",
+    display: "block",
+    background: "#161616"
+});
 
             imagen.alt = archivo.nombre;
 
