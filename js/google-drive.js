@@ -441,7 +441,7 @@ function guardarMiniaturaEnCache(driveId, blob) {
 
 /* ==========================================
    GENERAR MINIATURA DE VIDEO
-   GOOGLE DRIVE
+   COMPATIBLE CON ANDROID Y PC
 ========================================== */
 
 const VIDEO_MINIATURA_MAX_BYTES = 30 * 1024 * 1024;
@@ -453,9 +453,8 @@ async function crearMiniaturaVideoGoogleDrive(
 
     const tamano = Number(informacion.size || 0);
 
-    // Evitar descargar videos demasiado grandes.
+    // No descargar videos grandes para miniaturas.
     if (
-        !tamano ||
         tamano > VIDEO_MINIATURA_MAX_BYTES
     ) {
         return null;
@@ -482,157 +481,202 @@ async function crearMiniaturaVideoGoogleDrive(
 
     const video = document.createElement("video");
 
-    video.preload = "auto";
     video.muted = true;
+    video.defaultMuted = true;
     video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.preload = "auto";
 
     try {
 
-        const miniatura = await new Promise(
-            (resolver, rechazar) => {
+        return await new Promise((resolver, rechazar) => {
 
-                let terminado = false;
+            let terminado = false;
+            let capturando = false;
+            let intentos = 0;
 
-                const temporizador = setTimeout(() => {
-                    finalizar(
-                        new Error(
-                            "Tiempo agotado al generar miniatura"
-                        )
-                    );
-                }, 15000);
+            const temporizador = setTimeout(() => {
+                finalizar(
+                    new Error("Tiempo agotado al generar miniatura")
+                );
+            }, 20000);
 
-                function finalizar(error, resultado) {
+            function finalizar(error, blob = null) {
 
-                    if (terminado) return;
+                if (terminado) return;
 
-                    terminado = true;
-                    clearTimeout(temporizador);
+                terminado = true;
+                clearTimeout(temporizador);
 
-                    if (error) {
-                        rechazar(error);
-                    } else {
-                        resolver(resultado);
-                    }
+                if (error) {
+                    rechazar(error);
+                } else {
+                    resolver(blob);
+                }
+            }
+
+            function capturar() {
+
+                if (terminado || capturando) return;
+
+                if (
+                    video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
+                    !video.videoWidth ||
+                    !video.videoHeight
+                ) {
+                    return;
                 }
 
-                function capturar() {
+                capturando = true;
 
-                    try {
+                try {
 
-                        if (
-                            !video.videoWidth ||
-                            !video.videoHeight
-                        ) {
-                            throw new Error(
-                                "El video no tiene dimensiones validas"
-                            );
-                        }
+                    const limite = 400;
 
-                        const limite = 400;
-
-                        const escala = Math.min(
-                            1,
-                            limite / Math.max(
-                                video.videoWidth,
-                                video.videoHeight
-                            )
-                        );
-
-                        const canvas =
-                            document.createElement("canvas");
-
-                        canvas.width = Math.max(
-                            1,
-                            Math.round(
-                                video.videoWidth * escala
-                            )
-                        );
-
-                        canvas.height = Math.max(
-                            1,
-                            Math.round(
-                                video.videoHeight * escala
-                            )
-                        );
-
-                        const contexto =
-                            canvas.getContext("2d");
-
-                        if (!contexto) {
-                            throw new Error(
-                                "No se pudo crear el canvas"
-                            );
-                        }
-
-                        contexto.drawImage(
-                            video,
-                            0,
-                            0,
-                            canvas.width,
-                            canvas.height
-                        );
-
-                        canvas.toBlob(blob => {
-
-                            if (!blob) {
-
-                                finalizar(
-                                    new Error(
-                                        "No se pudo crear la miniatura"
-                                    )
-                                );
-
-                                return;
-                            }
-
-                            finalizar(null, blob);
-
-                        }, "image/webp", 0.8);
-
-                    } catch (error) {
-
-                        finalizar(error);
-                    }
-                }
-
-                video.onerror = () => {
-
-                    finalizar(
-                        new Error(
-                            "No se pudo decodificar el video"
+                    const escala = Math.min(
+                        1,
+                        limite / Math.max(
+                            video.videoWidth,
+                            video.videoHeight
                         )
                     );
-                };
 
-                video.onloadedmetadata = () => {
+                    const canvas = document.createElement("canvas");
 
-                    const duracion = video.duration;
+                    canvas.width = Math.max(
+                        1,
+                        Math.round(video.videoWidth * escala)
+                    );
+
+                    canvas.height = Math.max(
+                        1,
+                        Math.round(video.videoHeight * escala)
+                    );
+
+                    const contexto = canvas.getContext("2d", {
+                        willReadFrequently: true
+                    });
+
+                    if (!contexto) {
+                        throw new Error("Canvas no disponible");
+                    }
+
+                    contexto.drawImage(
+                        video,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
+
+                    // Detectar fotogramas completamente negros.
+                    const datos = contexto.getImageData(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    ).data;
+
+                    let brillo = 0;
+                    let muestras = 0;
+
+                    for (let i = 0; i < datos.length; i += 160) {
+
+                        brillo += datos[i] +
+                            datos[i + 1] +
+                            datos[i + 2];
+
+                        muestras++;
+                    }
+
+                    const promedio = muestras
+                        ? brillo / (muestras * 3)
+                        : 0;
 
                     if (
-                        Number.isFinite(duracion) &&
-                        duracion > 0.5
+                        promedio < 4 &&
+                        intentos < 2 &&
+                        Number.isFinite(video.duration) &&
+                        video.duration > 2
                     ) {
 
-                        video.currentTime = Math.min(
-                            1,
-                            duracion / 2
+                        intentos++;
+                        capturando = false;
+
+                        const siguiente = Math.min(
+                            video.duration - 0.1,
+                            Math.max(
+                                video.currentTime + 1,
+                                video.duration * 0.3
+                            )
                         );
 
-                    } else {
+                        video.currentTime = siguiente;
 
-                        // Esperar el primer fotograma.
-                        video.onloadeddata = capturar;
+                        return;
                     }
-                };
 
-                video.onseeked = capturar;
+                    canvas.toBlob(blob => {
 
-                video.src = url;
-                video.load();
+                        if (!blob) {
+                            finalizar(
+                                new Error(
+                                    "No se pudo convertir la miniatura"
+                                )
+                            );
+                            return;
+                        }
+
+                        finalizar(null, blob);
+
+                    }, "image/jpeg", 0.85);
+
+                } catch (error) {
+
+                    finalizar(error);
+                }
             }
-        );
 
-        return miniatura;
+            video.onerror = () => {
+                finalizar(
+                    new Error(
+                        "El navegador no pudo procesar el video"
+                    )
+                );
+            };
+
+            video.onloadedmetadata = () => {
+
+                if (terminado) return;
+
+                const duracion = video.duration;
+
+                if (
+                    Number.isFinite(duracion) &&
+                    duracion > 1
+                ) {
+
+                    const posicion = Math.min(
+                        1,
+                        duracion / 2
+                    );
+
+                    video.currentTime = posicion;
+
+                } else {
+
+                    capturar();
+                }
+            };
+
+            video.onloadeddata = capturar;
+            video.onseeked = capturar;
+
+            video.src = url;
+            video.load();
+
+        });
 
     } finally {
 
