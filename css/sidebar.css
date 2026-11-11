@@ -1,0 +1,558 @@
+
+/* ==========================================
+   MI GALERIA - BARRA LATERAL
+   Archivo: sidebar.css
+========================================== */
+
+/* ==========================================
+   VARIABLES DEL SIDEBAR
+========================================== */
+
+:root {
+    --sidebar-fondo: #181818;
+    --sidebar-borde: #303030;
+    --sidebar-texto: #e8e8e8;
+    --sidebar-texto-secundario: #aaaaaa;
+
+    --sidebar-hover: #292929;
+    --sidebar-activo: #303d52;
+    --sidebar-activo-borde: #5d9cec;
+
+    --arbol-linea: #505050;
+    --arbol-altura: 38px;
+}
+
+/* ==========================================
+   CONTENEDOR PRINCIPAL
+========================================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 240px;
+    height: 100vh;
+
+    padding: 25px 15px;
+
+    background: var(--sidebar-fondo);
+    color: var(--sidebar-texto);
+
+    border-right: 1px solid var(--sidebar-borde);
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    z-index: 10;
+
+    box-sizing: border-box;
+
+    scrollbar-width: thin;
+    scrollbar-color: #505050 transparent;
+}
+
+/* ==========================================
+   BARRA DE DESPLAZAMIENTO
+========================================== */
+
+.sidebar::-webkit-scrollbar {
+    width: 7px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #484848;
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #606060;
+}
+
+/* ==========================================
+   TITULO MI GALERIA
+========================================== */
+
+.sidebar h2 {
+    margin: 0 0 30px;
+    padding: 0 10px;
+
+    color: var(--sidebar-texto);
+
+    font-size: 23px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+/* ==========================================
+   BOTON INICIO
+========================================== */
+
+.sidebar .inicio {
+    display: block;
+
+    width: 100%;
+    min-height: 43px;
+
+    padding: 13px 15px;
+    margin-bottom: 30px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: var(--superficie);
+    color: var(--texto);
+
+    text-align: left;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: background 0.2s;
+}
+
+.sidebar .inicio:hover {
+    background: var(--superficie-hover);
+}
+
+.sidebar .inicio:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+}
+
+/* ==========================================
+   TITULO MIS CARPETAS
+========================================== */
+
+.sidebar .titulo-carpetas {
+    padding: 0 10px;
+    margin-bottom: 15px;
+
+    color: var(--texto-secundario);
+
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* ==========================================
+   BOTONES GENERALES
+========================================== */
+
+.sidebar button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.sidebar button:focus-visible {
+    outline: 2px solid #75aaff;
+    outline-offset: -2px;
+}
+
+/* ==========================================
+   CONTENEDOR DEL ARBOL
+========================================== */
+
+#arbolCarpetas {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    min-width: 0;
+
+    padding: 4px 0 14px;
+
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   GRUPO DE CARPETAS
+========================================== */
+
+#arbolCarpetas .arbol-grupo {
+    position: relative;
+
+    width: 100%;
+    min-width: 0;
+
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   FILA DE CADA CARPETA
+========================================== */
+
+#arbolCarpetas .arbol-fila {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-width: 0;
+    min-height: var(--arbol-altura);
+
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   FLECHAS EXPANDIR Y CONTRAER
+========================================== */
+
+#arbolCarpetas .arbol-expandir {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 23px;
+
+    width: 23px;
+    height: 30px;
+
+    margin: 0;
+    padding: 0;
+
+    border: none;
+    border-radius: 5px;
+
+    background: transparent;
+    color: #bcbcbc;
+
+    font-size: 19px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+#arbolCarpetas .arbol-expandir:hover:not(:disabled) {
+    background: #373737;
+    color: #ffffff;
+}
+
+#arbolCarpetas .arbol-expandir:disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+/* ==========================================
+   BOTON DE CARPETA
+========================================== */
+
+#arbolCarpetas .arbol-item {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    flex: 1 1 auto;
+
+    min-width: 0;
+    min-height: 34px;
+
+    margin: 2px 0;
+    padding: 6px 9px;
+
+    border: 1px solid transparent;
+    border-radius: 7px;
+
+    background: transparent;
+    color: var(--sidebar-texto);
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+/* ==========================================
+   EFECTO HOVER
+========================================== */
+
+#arbolCarpetas .arbol-item:hover {
+    background: var(--sidebar-hover);
+}
+
+/* ==========================================
+   CARPETA SELECCIONADA
+========================================== */
+
+#arbolCarpetas .arbol-item.activo {
+    background: var(--sidebar-activo);
+
+    border-color: rgba(93, 156, 236, 0.45);
+
+    color: #ffffff;
+
+    font-weight: 600;
+
+    box-shadow:
+        inset 3px 0 0 var(--sidebar-activo-borde);
+}
+
+#arbolCarpetas .arbol-item.activo:hover {
+    background: #394b65;
+}
+
+/* ==========================================
+   ICONO DE CARPETA
+========================================== */
+
+#arbolCarpetas .arbol-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    width: 22px;
+    height: 22px;
+
+    margin-right: 7px;
+
+    font-size: 17px;
+    line-height: 1;
+
+    user-select: none;
+}
+
+/* ==========================================
+   NOMBRE DE CARPETA
+========================================== */
+
+#arbolCarpetas .arbol-texto {
+    display: block;
+
+    flex: 1 1 auto;
+
+    min-width: 0;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* ==========================================
+   SUBNIVELES DE CARPETAS
+========================================== */
+
+#arbolCarpetas .arbol-subnivel {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    margin-left: 11px;
+    padding-left: 9px;
+
+    border-left: 1px solid var(--arbol-linea);
+
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   LINEAS HORIZONTALES
+========================================== */
+
+#arbolCarpetas .arbol-subnivel > .arbol-grupo::before {
+    content: "";
+
+    position: absolute;
+
+    top: 19px;
+    left: -9px;
+
+    width: 10px;
+    height: 1px;
+
+    background: var(--arbol-linea);
+
+    pointer-events: none;
+}
+
+/* ==========================================
+   FINAL DE LAS RAMAS
+========================================== */
+
+#arbolCarpetas .arbol-subnivel > .arbol-grupo:last-child::after {
+    content: "";
+
+    position: absolute;
+
+    left: -10px;
+    top: 20px;
+    bottom: 0;
+
+    width: 2px;
+
+    background: var(--sidebar-fondo);
+
+    pointer-events: none;
+}
+
+/* ==========================================
+   NIVELES ANIDADOS
+========================================== */
+
+#arbolCarpetas .arbol-subnivel .arbol-subnivel {
+    margin-left: 11px;
+    padding-left: 9px;
+}
+
+#arbolCarpetas .arbol-subnivel .arbol-fila {
+    min-height: var(--arbol-altura);
+}
+
+/* ==========================================
+   NOMBRES LARGOS
+========================================== */
+
+#arbolCarpetas .arbol-item,
+#arbolCarpetas .arbol-texto {
+    max-width: 100%;
+}
+
+/* ==========================================
+   ARBOL VACIO
+========================================== */
+
+#arbolCarpetas:empty {
+    min-height: 20px;
+}
+
+/* ==========================================
+   ADAPTACION PARA TABLETS
+========================================== */
+
+@media (min-width: 601px) and (max-width: 1024px) {
+
+    #arbolCarpetas .arbol-texto {
+        font-size: 12px;
+    }
+
+    #arbolCarpetas .arbol-item {
+        padding: 6px 7px;
+    }
+}
+
+/* ==========================================
+   ADAPTACION PARA CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    /*
+       Se mantienen las dimensiones y el
+       posicionamiento general del sidebar.
+
+       Las reglas de apertura y cierre del
+       menu movil deben seguir controladas
+       por el CSS responsive existente.
+    */
+
+    .sidebar {
+        max-width: 85vw;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    #arbolCarpetas {
+        padding: 5px 0 16px;
+    }
+
+    #arbolCarpetas .arbol-fila {
+        min-height: 42px;
+    }
+
+    #arbolCarpetas .arbol-item {
+        min-height: 38px;
+        padding: 8px 7px;
+    }
+
+    #arbolCarpetas .arbol-expandir {
+        width: 27px;
+        flex-basis: 27px;
+
+        height: 35px;
+        font-size: 21px;
+    }
+
+    #arbolCarpetas .arbol-icono {
+        font-size: 18px;
+    }
+
+    #arbolCarpetas .arbol-texto {
+        font-size: 13px;
+    }
+
+    #arbolCarpetas .arbol-subnivel {
+        margin-left: 13px;
+        padding-left: 9px;
+    }
+
+    #arbolCarpetas .arbol-subnivel > .arbol-grupo::before {
+        top: 21px;
+    }
+
+    #arbolCarpetas .arbol-subnivel > .arbol-grupo:last-child::after {
+        top: 22px;
+    }
+}
+
+/* ==========================================
+   PANTALLAS MUY PEQUENAS
+========================================== */
+
+@media (max-width: 360px) {
+
+    #arbolCarpetas .arbol-item {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    #arbolCarpetas .arbol-texto {
+        font-size: 12px;
+    }
+
+    #arbolCarpetas .arbol-icono {
+        margin-right: 5px;
+    }
+}
+
+/* ==========================================
+   ACCESIBILIDAD
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    #arbolCarpetas .arbol-item,
+    #arbolCarpetas .arbol-expandir,
+    .sidebar .inicio {
+        transition: none;
+    }
+}

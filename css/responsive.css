@@ -1,0 +1,697 @@
+
+/* ==========================================
+   MI GALERIA - DISEÑO RESPONSIVO
+   Archivo: responsive.css
+========================================== */
+
+/* PANTALLAS MEDIANAS */
+
+@media (max-width: 1100px) {
+    .contenido {
+        padding: 30px 25px 75px;
+    }
+
+    .carpetas-grid {
+        grid-template-columns: repeat(
+            auto-fill,
+            minmax(160px, 1fr)
+        );
+    }
+
+    .encabezado {
+        flex-wrap: wrap;
+    }
+}
+
+/* TABLETS */
+
+@media (max-width: 800px) {
+    .sidebar {
+        width: 190px;
+    }
+
+    .contenido {
+        margin-left: 190px;
+        padding: 25px 20px 75px;
+    }
+
+    .sidebar h2 {
+        font-size: 20px;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(
+            min(var(--columnas-galeria, 4), 3),
+            minmax(0, 1fr)
+        );
+    }
+
+    .visor .flecha {
+        width: 37px;
+        height: 48px;
+        font-size: 23px;
+    }
+
+    .visor .flecha.anterior {
+        left: 5px;
+    }
+
+    .visor .flecha.siguiente {
+        right: 5px;
+    }
+
+    .barra-estado {
+        left: 190px;
+    }
+}
+
+/* CELULARES */
+
+@media (max-width: 600px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        max-height: 230px;
+        padding: 15px;
+        border-right: none;
+        border-bottom: 1px solid var(--borde);
+    }
+
+    .sidebar h2 {
+        margin-bottom: 15px;
+    }
+
+    .inicio {
+        margin-bottom: 15px;
+    }
+
+    #arbolCarpetas {
+        max-height: 100px;
+        overflow-y: auto;
+    }
+
+    .contenido {
+        margin-left: 0;
+        padding: 20px 12px 75px;
+    }
+
+    .encabezado h1 {
+        font-size: 25px;
+    }
+
+    .acciones {
+        width: 100%;
+    }
+
+    .acciones button,
+    .boton-subir {
+        flex: 1;
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    .herramientas {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #buscador,
+    #ordenar {
+        width: 100%;
+    }
+
+    .carpetas-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .carpeta-nombre {
+        font-size: 12px;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(
+            min(var(--columnas-galeria, 4), 2),
+            minmax(0, 1fr)
+        );
+        gap: 7px;
+    }
+
+    .archivo {
+        border-width: 2px;
+    }
+
+    .archivo-nombre {
+        padding: 9px 8px;
+        font-size: 11px;
+    }
+
+    .barra-seleccion {
+        gap: 8px;
+    }
+
+    #contadorSeleccion {
+        width: 100%;
+    }
+
+    .barra-seleccion button {
+        flex: 1;
+        font-size: 12px;
+    }
+
+    /* VISOR */
+
+    .visor-nombre-flotante {
+        top: 12px;
+        left: 10px;
+        max-width: calc(100% - 115px);
+        padding: 8px 10px;
+    }
+
+    .visor #nombreVisor {
+        font-size: 11px;
+    }
+
+    .visor-botones-superiores {
+        top: 10px;
+        right: 10px;
+        gap: 5px;
+    }
+
+    .visor #btnPantallaCompleta,
+    .visor #cerrarVisor {
+        width: 35px;
+        height: 35px;
+        font-size: 19px;
+    }
+
+    .visor .flecha {
+        width: 28px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    .visor .flecha.anterior {
+        left: 3px;
+    }
+
+    .visor .flecha.siguiente {
+        right: 3px;
+    }
+
+    .panel-zoom {
+        bottom: 15px;
+    }
+
+    .visor .controles-zoom {
+        gap: 5px;
+        padding: 7px;
+    }
+
+    .controles-zoom button {
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
+    }
+
+    #porcentajeZoom {
+        min-width: 55px;
+        font-size: 13px;
+    }
+
+    .boton-mostrar-zoom {
+        bottom: 15px;
+    }
+
+    /* MODALES */
+
+    .modal-accion {
+        padding: 12px;
+    }
+
+    .modal-accion-contenido {
+        padding: 18px;
+    }
+
+    .modal-accion-encabezado h2 {
+        font-size: 19px;
+    }
+
+    .modal-accion-botones button {
+        flex: 1;
+    }
+
+    .zona-arrastre {
+        min-height: 200px;
+        padding: 20px 12px;
+    }
+
+    .zona-arrastre h3 {
+        font-size: 15px;
+    }
+
+    /* BARRA DE ESTADO */
+
+    .barra-estado {
+        left: 0;
+        font-size: 11px;
+    }
+
+    /* SELECTOR DE VISTA */
+
+    .selector-vista {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #columnasGaleria {
+        flex: 1;
+    }
+}
+
+
+
+/* ==========================================
+   MI GALERIA - MEJORAS RESPONSIVAS
+   COMPUTADORAS, TABLETS Y CELULARES
+========================================== */
+
+/* EVITAR DESBORDAMIENTOS */
+
+html,
+body {
+    max-width: 100%;
+}
+
+.contenido {
+    min-width: 0;
+}
+
+.encabezado > div {
+    min-width: 0;
+}
+
+.acciones {
+    min-width: 0;
+}
+
+#galeria,
+#carpetas {
+    min-width: 0;
+}
+
+/* ==========================================
+   TABLETS
+========================================== */
+
+@media (min-width: 601px) and (max-width: 1024px) {
+
+    .contenido {
+        padding: 24px 20px 65px;
+    }
+
+    .encabezado {
+        flex-wrap: wrap;
+        gap: 18px;
+    }
+
+    .acciones {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .herramientas {
+        gap: 12px;
+    }
+
+    .carpetas-grid {
+        grid-template-columns:
+            repeat(auto-fill, minmax(145px, 1fr));
+    }
+
+    .galeria {
+        grid-template-columns: repeat(
+            min(var(--columnas-galeria, 4), 4),
+            minmax(0, 1fr)
+        );
+    }
+
+    .archivo-nombre {
+        font-size: 12px;
+    }
+}
+
+/* ==========================================
+   CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    /* BARRA LATERAL */
+
+    .sidebar {
+        width: 100%;
+        max-height: 180px;
+        overflow-y: auto;
+    }
+
+    .sidebar h2 {
+        font-size: 21px;
+    }
+
+    /* CONTENIDO */
+
+    .contenido {
+        width: 100%;
+        margin-left: 0;
+        padding: 18px 12px 65px;
+    }
+
+    .encabezado {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .encabezado h1 {
+        font-size: 24px;
+    }
+
+    /* BOTONES */
+
+    .acciones {
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 9px;
+    }
+
+    .acciones > button {
+        width: 100%;
+        min-width: 0;
+        min-height: 43px;
+        padding: 9px 7px;
+        font-size: 12px;
+        white-space: normal;
+    }
+
+    .acciones .menu-ajustes {
+        margin-left: 0;
+        min-width: 0;
+    }
+
+    .boton-hamburguesa {
+        width: 100%;
+        min-height: 43px;
+    }
+
+    .panel-menu-ajustes {
+        right: 0;
+        width: min(265px, calc(100vw - 24px));
+    }
+
+    /* BUSCADOR */
+
+    .herramientas {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    #buscador,
+    #ordenar {
+        width: 100%;
+        max-width: none;
+    }
+
+    .selector-vista {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #columnasGaleria {
+        flex: 1;
+    }
+
+    /* CARPETAS */
+
+    .carpetas-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .carpeta {
+        min-width: 0;
+    }
+
+    .carpeta-pie {
+        padding: 8px;
+    }
+
+    .carpeta-nombre {
+        font-size: 12px;
+    }
+
+    /* ARCHIVOS */
+
+    .galeria {
+        grid-template-columns: repeat(
+            min(var(--columnas-galeria, 4), 2),
+            minmax(0, 1fr)
+        );
+        gap: 8px;
+    }
+
+    .archivo {
+        min-width: 0;
+    }
+
+    .archivo-nombre {
+        font-size: 11px;
+        padding: 8px;
+    }
+
+    /* SELECCION MULTIPLE */
+
+    .barra-seleccion {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    #contadorSeleccion {
+        flex-basis: 100%;
+    }
+
+    .barra-seleccion button {
+        flex: 1 1 auto;
+    }
+
+    /* ESTADO INFERIOR */
+
+    .barra-estado {
+        left: 0;
+        right: 0;
+        padding: 0 10px;
+        gap: 8px;
+        font-size: 10px;
+    }
+
+    #detalleElementos {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* ==========================================
+   CELULARES MUY PEQUEÑOS
+========================================== */
+
+@media (max-width: 360px) {
+
+    .contenido {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .acciones {
+        gap: 6px;
+    }
+
+    .acciones > button {
+        font-size: 11px;
+    }
+
+    .carpetas-grid {
+        gap: 7px;
+    }
+
+    .galeria {
+        gap: 5px;
+    }
+
+    .archivo-nombre {
+        font-size: 10px;
+    }
+}
+
+
+
+/* ==========================================
+   MI GALERIA - MENU MOVIL
+========================================== */
+
+/* OCULTO EN COMPUTADORAS */
+
+.encabezado-movil {
+    display: none;
+}
+
+/* ==========================================
+   CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    /* ENCABEZADO SUPERIOR */
+
+    .encabezado-movil {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        width: 100%;
+        height: 60px;
+
+        padding: 0 16px;
+
+        background: #191919;
+        border-bottom: 1px solid #363636;
+    }
+
+    .titulo-movil {
+        color: #fff;
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+    /* BOTON HAMBURGUESA */
+
+    .boton-menu-movil {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 43px;
+        height: 43px;
+
+        border: 1px solid #444;
+        border-radius: 9px;
+
+        background: #292929;
+        color: white;
+
+        font-size: 23px;
+        cursor: pointer;
+    }
+
+    .boton-menu-movil:hover {
+        background: #383838;
+    }
+
+    /* BARRA LATERAL DESPLEGABLE */
+
+    #barraLateral.sidebar {
+        display: none;
+
+        position: fixed;
+        top: 60px;
+        left: 0;
+        bottom: 0;
+
+        width: min(300px, 85vw);
+        height: calc(100dvh - 60px);
+        max-height: none;
+
+        margin: 0;
+        padding: 20px 15px;
+
+        overflow-y: auto;
+
+        background: #191919;
+        border-right: 1px solid #404040;
+        border-bottom: none;
+
+        z-index: 99;
+
+        box-shadow: 10px 0 35px rgba(0,0,0,0.45);
+    }
+
+    /* MENU ABIERTO */
+
+    #barraLateral.sidebar.menu-movil-abierto {
+        display: block;
+    }
+
+    #barraLateral #arbolCarpetas {
+        max-height: none;
+        overflow: visible;
+    }
+
+    /* CONTENIDO PRINCIPAL */
+
+    .contenido {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    /* BARRA INFERIOR */
+
+    .barra-estado {
+        left: 0;
+    }
+}
+
+
+
+/* ==========================================
+   VISOR DE IMAGENES - CONTROLES MOVILES
+========================================== */
+
+@media (max-width: 600px) {
+
+    #visor #panelZoom:not(.oculto) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+
+        max-width: calc(100vw - 20px);
+        z-index: 1100;
+    }
+
+    #visor #btnMostrarZoom:not(.oculto) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1100;
+    }
+
+    #visor #panelZoom button {
+        min-width: 32px;
+        min-height: 32px;
+        flex-shrink: 0;
+    }
+
+    #visor #porcentajeZoom {
+        white-space: nowrap;
+    }
+}

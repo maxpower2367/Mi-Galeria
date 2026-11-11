@@ -8,8 +8,12 @@
 
     <title>Mi Galería</title>
 
-    <link rel="stylesheet" href="css/estilos.css">
-    <link rel="stylesheet" href="css/estadisticas.css">
+
+<link rel="stylesheet" href="css/estilos.css">
+<link rel="stylesheet" href="css/estadisticas.css">
+<link rel="stylesheet" href="css/reproductor.css">
+<link rel="stylesheet" href="css/acceso.css">
+
 
     <style>
         /* ==========================================
@@ -76,6 +80,10 @@
             cursor: pointer;
         }
 
+        .panel-menu-ajustes button[hidden] {
+            display: none !important;
+        }
+
         .panel-menu-ajustes button:hover {
             background: #333333;
         }
@@ -93,13 +101,87 @@
     </style>
 </head>
 
-<body>
+
+<body class="acceso-bloqueado">
+
+
+<!-- =====================================
+     ENCABEZADO PARA CELULARES
+====================================== -->
+
+<div class="encabezado-movil">
+
+    <span class="titulo-movil">
+        Mi Galería
+    </span>
+
+    <button
+        id="btnMenuMovil"
+        class="boton-menu-movil"
+        type="button"
+        aria-label="Abrir menú de carpetas"
+        aria-expanded="false"
+        aria-controls="barraLateral"
+    >
+        ☰
+    </button>
+
+</div>
+
+
+<!-- =====================================
+     PANTALLA DE ACCESO
+====================================== -->
+
+<div id="pantallaAcceso">
+
+    <div class="acceso-ventana">
+
+        <div class="acceso-icono">
+            🔒
+        </div>
+
+        <h2>Mi Galería</h2>
+
+        <p>
+            Ingresa tu contraseña para
+            acceder a tu galería personal.
+        </p>
+
+        <form id="formAcceso">
+
+            <input
+                type="password"
+                id="accesoPassword"
+                placeholder="Contraseña"
+                autocomplete="off"
+                required
+            >
+
+            <button
+                type="submit"
+                id="accesoEntrar"
+            >
+                Entrar
+            </button>
+
+            <div
+                id="accesoError"
+                role="alert"
+            ></div>
+
+        </form>
+
+    </div>
+
+</div>
+
 
     <!-- =====================================
          BARRA LATERAL
     ====================================== -->
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="barraLateral">
 
         <h2>Mi Galería</h2>
 
@@ -177,18 +259,18 @@
                     >
 
                         <div class="menu-ajustes-titulo">
-                            Opciones de Mi Galería
+                            Google Drive y respaldos
                         </div>
 
-                        <button id="btnConectarBoveda" type="button">
+                        <button id="btnConectarBoveda" type="button" hidden aria-hidden="true" tabindex="-1">
                             🔐 Conectar Cryptomator
                         </button>
 
-                        <button id="btnGuardarBoveda" type="button">
+                        <button id="btnGuardarBoveda" type="button" hidden aria-hidden="true" tabindex="-1">
                             ☁️ Guardar en bóveda
                         </button>
 
-                        <button id="btnRestaurarBoveda" type="button">
+                        <button id="btnRestaurarBoveda" type="button" hidden aria-hidden="true" tabindex="-1">
                             📥 Recuperar de bóveda
                         </button>
 
@@ -444,6 +526,34 @@
                     ↺
                 </button>
 
+
+
+<!-- DESCARGAR IMAGEN O GIF -->
+
+<button
+    id="btnDescargarVisor"
+    type="button"
+    title="Descargar archivo"
+    aria-label="Descargar archivo"
+>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+    >
+                        <path d="M12 3v12"/>
+                        <path d="m7 10 5 5 5-5"/>
+                        <path d="M4 16v4h16v-4"/>
+                    </svg>
+                </button>
+
                 <span class="separador-zoom"></span>
 
                 <button
@@ -458,6 +568,137 @@
             </div>
 
         </div>
+
+
+
+<!-- =====================================
+     REPRODUCTOR DE VIDEO
+====================================== -->
+
+<div
+    id="panelVideo"
+    class="panel-video oculto"
+>
+
+    <!-- BARRA DE PROGRESO -->
+
+    <input
+        id="videoProgreso"
+        type="range"
+        min="0"
+        max="100"
+        value="0"
+        step="0.1"
+        aria-label="Progreso del video"
+    >
+
+    <div class="video-fila">
+
+        <!-- REPRODUCIR / PAUSAR -->
+
+        <button
+            id="videoPlay"
+            type="button"
+            title="Reproducir o pausar"
+            aria-label="Reproducir o pausar"
+        >
+            ▶
+        </button>
+
+        <!-- TIEMPO -->
+
+        <span id="videoTiempo">
+            00:00 / 00:00
+        </span>
+
+        <!-- SILENCIAR -->
+
+        <button
+            id="videoMute"
+            type="button"
+            title="Activar o silenciar audio"
+            aria-label="Activar o silenciar audio"
+        >
+            🔊
+        </button>
+
+        <!-- VOLUMEN -->
+
+        <input
+            id="videoVolumen"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value="1"
+            aria-label="Volumen del video"
+        >
+
+        <!-- VELOCIDAD -->
+
+        <select
+            id="videoVelocidad"
+            title="Velocidad de reproducción"
+            aria-label="Velocidad de reproducción"
+        >
+            <option value="0.25">0.25x</option>
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+        </select>
+
+        <!-- AJUSTE DE VIDEO -->
+
+        <select
+            id="videoAjuste"
+            title="Ajustar tamaño del video"
+            aria-label="Ajustar tamaño del video"
+        >
+            <option value="contener" selected>
+                Ajustar
+            </option>
+
+            <option value="cubrir">
+                Rellenar
+            </option>
+
+            <option value="original">
+                Original
+            </option>
+        </select>
+
+        <!-- DESCARGAR VIDEO -->
+
+        <button
+            id="videoDescargar"
+            type="button"
+            title="Descargar video"
+            aria-label="Descargar video"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+            >
+                <path d="M12 3v12"/>
+                <path d="m7 10 5 5 5-5"/>
+                <path d="M4 16v4h16v-4"/>
+            </svg>
+        </button>
+
+    </div>
+
+</div>
 
 
         <!-- MOSTRAR CONTROLES DE ZOOM -->
@@ -935,67 +1176,23 @@
     <script src="js/respaldo.js"></script>
     <script src="js/cryptomator.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="js/notificaciones.js"></script>
 <script src="js/google-drive.js"></script>
+<script src="js/acceso.js"></script>
+<script src="js/eliminacion.js"></script>
+<script src="js/portadas-drive.js"></script>
 
 
-    <!-- =====================================
-         FUNCIONAMIENTO MENU HAMBURGUESA
-    ====================================== -->
+<script src="js/recuperacion-drive.js"></script>
+<script src="js/subida-pendientes.js"></script>
 
-    <script>
-        (() => {
-            "use strict";
 
-            const boton = document.getElementById(
-                "btnMenuAjustes"
-            );
+    <!-- MENU HAMBURGUESA: UN SOLO CONTROLADOR -->
+    <script src="js/menu.js"></script>
 
-            const panel = document.getElementById(
-                "panelMenuAjustes"
-            );
+<script src="js/menu-movil.js"></script>
 
-            if (!boton || !panel) return;
 
-            function mostrarMenu(abierto) {
-                panel.hidden = !abierto;
-
-                boton.setAttribute(
-                    "aria-expanded",
-                    String(abierto)
-                );
-
-                boton.textContent = abierto ? "✕" : "☰";
-            }
-
-            boton.addEventListener("click", evento => {
-                evento.stopPropagation();
-                mostrarMenu(panel.hidden);
-            });
-
-            panel.addEventListener("click", evento => {
-                if (evento.target.closest("button")) {
-                    mostrarMenu(false);
-                }
-            });
-
-            document.addEventListener("click", evento => {
-                if (
-                    !panel.hidden &&
-                    !boton.contains(evento.target) &&
-                    !panel.contains(evento.target)
-                ) {
-                    mostrarMenu(false);
-                }
-            });
-
-            document.addEventListener("keydown", evento => {
-                if (evento.key === "Escape") {
-                    mostrarMenu(false);
-                }
-            });
-        })();
-    </script>
 
 </body>
 </html>
-

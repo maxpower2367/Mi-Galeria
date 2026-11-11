@@ -1,0 +1,987 @@
+
+/* ==========================================
+   MI GALERIA - CONTENIDO Y ARCHIVOS
+   Archivo: galeria.css
+========================================== */
+
+/* ==========================================
+   CONTENIDO PRINCIPAL
+========================================== */
+
+.contenido {
+    min-height: 100vh;
+    margin-left: 240px;
+    padding: 35px 40px 75px;
+}
+
+/* ==========================================
+   ENCABEZADO
+========================================== */
+
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.encabezado h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+/* ==========================================
+   BOTONES PRINCIPALES
+========================================== */
+
+.acciones {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.acciones button,
+.boton-subir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 11px 18px;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    background: var(--superficie);
+    color: var(--texto);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.acciones button:hover,
+.boton-subir:hover {
+    background: var(--superficie-hover);
+}
+
+.acciones .boton-subir {
+    background: var(--acento);
+    border-color: var(--acento);
+}
+
+.acciones .boton-subir:hover {
+    background: #3678ed;
+}
+
+/* ==========================================
+   RUTA DE NAVEGACION
+========================================== */
+
+.ruta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--texto-secundario);
+}
+
+.ruta button {
+    padding: 3px 0;
+    border: none;
+    background: transparent;
+    color: var(--texto-secundario);
+    font-size: 13px;
+}
+
+.ruta button:hover {
+    color: var(--acento);
+}
+
+.ruta span {
+    color: #777777;
+}
+
+/* ==========================================
+   BUSCADOR Y ORDENAMIENTO
+========================================== */
+
+.herramientas {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 28px;
+}
+
+#buscador {
+    width: min(100%, 430px);
+    min-height: 43px;
+    padding: 11px 15px;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    outline: none;
+    background: var(--superficie);
+    color: var(--texto);
+    font-size: 14px;
+}
+
+#buscador::placeholder {
+    color: #888888;
+}
+
+#buscador:focus {
+    border-color: var(--acento);
+}
+
+#ordenar {
+    min-height: 43px;
+    padding: 10px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    outline: none;
+    background: var(--superficie);
+    color: var(--texto);
+    font-size: 14px;
+}
+
+/* ==========================================
+   SECCIONES
+========================================== */
+
+#seccionCarpetas,
+#seccionArchivos {
+    margin-bottom: 35px;
+}
+
+#seccionCarpetas h3,
+#seccionArchivos h3 {
+    margin-bottom: 20px;
+    color: #ededed;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+/* ==========================================
+   CUADRICULA DE CARPETAS
+========================================== */
+
+.carpetas-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(190px, 1fr)
+    );
+    gap: 20px;
+}
+
+/* ==========================================
+   TARJETA DE CARPETA
+========================================== */
+
+.carpeta {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--superficie);
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s,
+        border-color 0.2s;
+}
+
+.carpeta:hover {
+    background: var(--superficie-hover);
+    border-color: #555555;
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   AREA DE PORTADA
+========================================== */
+
+.carpeta-portada {
+    position: relative;
+
+    width: 100%;
+    aspect-ratio: 4 / 3;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: #282828;
+}
+
+/* ==========================================
+   IMAGEN DE PORTADA PERSONALIZADA
+========================================== */
+
+.carpeta-portada > img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    flex-shrink: 0;
+
+    transition: transform 0.25s ease;
+}
+
+.carpeta:hover .carpeta-portada > img {
+    transform: scale(1.04);
+}
+
+/* ==========================================
+   ICONO GRANDE SIN PORTADA
+========================================== */
+
+.carpeta-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 65px;
+    line-height: 1;
+
+    user-select: none;
+}
+
+/* ==========================================
+   ICONO PEQUENO SOBRE LA PORTADA
+========================================== */
+
+.carpeta-insignia {
+    position: absolute;
+
+    left: 10px;
+    bottom: 10px;
+
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 34px;
+
+    border: 1px solid rgba(
+        255,
+        255,
+        255,
+        0.18
+    );
+
+    border-radius: 9px;
+
+    background: rgba(
+        15,
+        15,
+        15,
+        0.78
+    );
+
+    color: white;
+
+    font-size: 22px;
+    line-height: 1;
+
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.3);
+
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ==========================================
+   SOMBRA INFERIOR DE PORTADA
+========================================== */
+
+.carpeta-portada:has(> img)::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 55px;
+
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.35),
+        transparent
+    );
+
+    pointer-events: none;
+}
+
+/* ==========================================
+   PIE DE LA CARPETA
+========================================== */
+
+.carpeta-pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+
+    min-height: 53px;
+
+    padding: 9px 11px 9px 14px;
+}
+
+/* ==========================================
+   NOMBRE DE CARPETA
+========================================== */
+
+.carpeta-nombre {
+    min-width: 0;
+    flex: 1;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: var(--texto);
+}
+
+/* ==========================================
+   GALERIA DE ARCHIVOS
+========================================== */
+
+.galeria {
+    display: grid;
+
+    grid-template-columns: repeat(
+        var(--columnas-galeria, 4),
+        minmax(0, 1fr)
+    );
+
+    align-items: start;
+    gap: 12px;
+}
+
+/* ==========================================
+   TARJETA DE ARCHIVO
+========================================== */
+
+.archivo {
+    position: relative;
+
+    min-width: 0;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+
+    border: 3px solid transparent;
+    border-radius: 8px;
+
+    background: #202020;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s,
+        border-color 0.2s;
+}
+
+.archivo:hover {
+    transform: scale(1.015);
+}
+
+/* ==========================================
+   MINIATURAS DE IMAGEN Y VIDEO
+========================================== */
+
+.archivo img,
+.archivo video {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    aspect-ratio: 1 / 1;
+
+    object-fit: cover;
+
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   NOMBRES DE ARCHIVOS
+========================================== */
+
+.archivo-nombre {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    background: #242424;
+    color: #eeeeee;
+
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: left;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.archivo:hover .archivo-nombre {
+    background: #303030;
+}
+
+/* ==========================================
+   SELECCION MULTIPLE
+========================================== */
+
+.archivo.seleccionado {
+    border-color: var(--acento);
+    background: #263c60;
+}
+
+.archivo.seleccionado::after {
+    content: "✓";
+
+    position: absolute;
+
+    top: 9px;
+    left: 9px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 27px;
+    height: 27px;
+
+    border-radius: 50%;
+
+    background: var(--acento);
+    color: white;
+
+    font-size: 17px;
+    font-weight: bold;
+
+    pointer-events: none;
+}
+
+/* ==========================================
+   MENSAJE SIN ARCHIVOS
+========================================== */
+
+.vacio {
+    grid-column: 1 / -1;
+
+    padding: 35px 20px;
+
+    border: 1px dashed var(--borde);
+    border-radius: 12px;
+
+    color: var(--texto-secundario);
+
+    text-align: center;
+    font-size: 14px;
+}
+
+/* ==========================================
+   BOTON DE TRES PUNTOS
+========================================== */
+
+.boton-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: rgba(25, 25, 25, 0.85);
+
+    color: white;
+
+    font-size: 23px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: background 0.2s;
+}
+
+.boton-menu:hover {
+    background: #454545;
+}
+
+/* ==========================================
+   MENU SOBRE LOS ARCHIVOS
+========================================== */
+
+.archivo > .boton-menu {
+    position: absolute;
+
+    top: 8px;
+    right: 8px;
+
+    z-index: 2;
+}
+
+/* ==========================================
+   MENU DE LAS CARPETAS
+========================================== */
+
+.carpeta-pie .boton-menu {
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   MENU CONTEXTUAL
+========================================== */
+
+.menu-contextual {
+    position: fixed;
+
+    z-index: 2000;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 185px;
+
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
+
+    padding: 6px;
+
+    border: 1px solid #454545;
+    border-radius: 10px;
+
+    background: #292929;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.45);
+}
+
+/* ==========================================
+   BOTONES DEL MENU CONTEXTUAL
+========================================== */
+
+.menu-contextual button {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+    color: white;
+
+    text-align: left;
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.menu-contextual button:hover {
+    background: #424242;
+}
+
+/* ==========================================
+   OPCIONES DE PORTADA
+========================================== */
+
+.menu-contextual .opcion-portada-dinamica {
+    display: block;
+
+    width: 100%;
+
+    color: #e8e8e8;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    white-space: nowrap;
+}
+
+.menu-contextual .opcion-portada-dinamica:hover {
+    background: #35465c;
+    color: #ffffff;
+}
+
+/* ==========================================
+   BOTON ELIMINAR
+========================================== */
+
+#opEliminar:hover {
+    background: #582727;
+    color: #ffaaaa;
+}
+
+/* ==========================================
+   BARRA DE SELECCION
+========================================== */
+
+.barra-seleccion {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-bottom: 25px;
+
+    padding: 14px 17px;
+
+    border: 1px solid #355889;
+    border-radius: 10px;
+
+    background: #1d304c;
+}
+
+/* ==========================================
+   CONTADOR DE SELECCION
+========================================== */
+
+#contadorSeleccion {
+    margin-right: auto;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ==========================================
+   BOTONES DE SELECCION
+========================================== */
+
+.barra-seleccion button {
+    min-height: 37px;
+
+    padding: 9px 13px;
+
+    border: 1px solid #4a6385;
+    border-radius: 7px;
+
+    background: #2b4669;
+    color: white;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.barra-seleccion button:hover {
+    background: #38577e;
+}
+
+.barra-seleccion button.peligro {
+    background: #7c3030;
+    border-color: #994444;
+}
+
+.barra-seleccion button.peligro:hover {
+    background: #9a3b3b;
+}
+
+/* ==========================================
+   SELECTOR DE VISTA
+========================================== */
+
+.selector-vista {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.selector-vista span {
+    color: #aaaaaa;
+    font-size: 14px;
+}
+
+#columnasGaleria {
+    min-height: 43px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #363636;
+    border-radius: 9px;
+
+    background: #202020;
+    color: white;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+#columnasGaleria:hover {
+    border-color: var(--acento);
+}
+
+/* ==========================================
+   BARRA INFERIOR DE ESTADO
+========================================== */
+
+.barra-estado {
+    position: fixed;
+
+    bottom: 0;
+    left: 240px;
+    right: 0;
+
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 0 15px;
+
+    background: #191919;
+
+    border-top: 1px solid #363636;
+
+    color: #eeeeee;
+
+    font-size: 12px;
+
+    z-index: 20;
+}
+
+.separador-estado {
+    width: 1px;
+    height: 17px;
+    background: #555555;
+}
+
+#detalleElementos {
+    color: #aaaaaa;
+}
+
+/* ==========================================
+   ADAPTACION PARA TABLETS
+========================================== */
+
+@media (min-width: 601px) and (max-width: 1024px) {
+
+    .contenido {
+        padding: 25px 25px 70px;
+    }
+
+    .carpetas-grid {
+        grid-template-columns: repeat(
+            auto-fill,
+            minmax(160px, 1fr)
+        );
+
+        gap: 15px;
+    }
+
+    .carpeta-icono {
+        font-size: 58px;
+    }
+
+    .carpeta-insignia {
+        width: 35px;
+        height: 32px;
+        font-size: 20px;
+    }
+}
+
+/* ==========================================
+   ADAPTACION PARA CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    /*
+       No cambiamos el margen de .contenido
+       ni la posicion de .barra-estado aqui,
+       para respetar los estilos del menu movil.
+    */
+
+    .encabezado {
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .encabezado h1 {
+        font-size: 24px;
+    }
+
+    .herramientas {
+        gap: 12px;
+    }
+
+    .carpetas-grid {
+        grid-template-columns: repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+        gap: 12px;
+    }
+
+    .carpeta {
+        border-radius: 10px;
+    }
+
+    .carpeta-portada {
+        aspect-ratio: 4 / 3;
+    }
+
+    .carpeta-icono {
+        font-size: 48px;
+    }
+
+    .carpeta-insignia {
+        left: 7px;
+        bottom: 7px;
+
+        width: 31px;
+        height: 29px;
+
+        border-radius: 7px;
+
+        font-size: 18px;
+    }
+
+    .carpeta-pie {
+        min-height: 48px;
+        padding: 7px 8px 7px 10px;
+    }
+
+    .carpeta-nombre {
+        font-size: 12px;
+    }
+
+    .carpeta-pie .boton-menu {
+        width: 30px;
+        height: 30px;
+        font-size: 21px;
+    }
+
+    .archivo-nombre {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .menu-contextual {
+        width: 180px;
+    }
+
+    .barra-seleccion {
+        padding: 11px;
+        gap: 8px;
+    }
+
+    .selector-vista {
+        flex-wrap: wrap;
+    }
+}
+
+/* ==========================================
+   PANTALLAS MUY PEQUENAS
+========================================== */
+
+@media (max-width: 360px) {
+
+    .carpetas-grid {
+        gap: 9px;
+    }
+
+    .carpeta-nombre {
+        font-size: 11px;
+    }
+
+    .carpeta-icono {
+        font-size: 42px;
+    }
+
+    .carpeta-insignia {
+        width: 28px;
+        height: 27px;
+        font-size: 17px;
+    }
+}
+
+/* ==========================================
+   ACCESIBILIDAD
+========================================== */
+
+.carpeta:focus-within {
+    border-color: var(--acento);
+}
+
+.boton-menu:focus-visible,
+.menu-contextual button:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+}
+
+/* ==========================================
+   MOVIMIENTO REDUCIDO
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .carpeta,
+    .carpeta-portada > img,
+    .archivo,
+    .boton-menu {
+        transition: none;
+    }
+
+    .carpeta:hover,
+    .archivo:hover,
+    .carpeta:hover .carpeta-portada > img {
+        transform: none;
+    }
+}
+
+
+
+/* ==========================================
+   MI GALERIA - MINIATURAS SIN BORDES VACIOS
+========================================== */
+
+/* Imagenes y videos llenan toda la tarjeta */
+
+.galeria .archivo > img,
+.galeria .archivo > video {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Tarjeta alternativa cuando el video
+   no tiene una miniatura disponible */
+
+.galeria .archivo > .miniatura-video-alternativa {
+    aspect-ratio: 1 / 1;
+    min-height: 0 !important;
+}

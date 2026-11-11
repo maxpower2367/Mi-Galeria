@@ -1,0 +1,151 @@
+
+/* ==========================================
+   MI GALERIA - DISEÑO RESPONSIVO
+   PC, TABLET Y CELULAR
+========================================== */
+
+/* TABLETS Y PANTALLAS MEDIANAS */
+
+@media (max-width: 1024px) {
+    .contenido {
+        padding: 24px 22px 75px;
+    }
+
+    .encabezado {
+        flex-wrap: wrap;
+    }
+
+    .acciones {
+        width: 100%;
+    }
+
+    .herramientas {
+        justify-content: flex-start;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(
+            min(4, var(--columnas, 4)),
+            minmax(0, 1fr)
+        );
+    }
+}
+
+/* TABLETS PEQUEÑAS */
+
+@media (max-width: 800px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        border-right: 0;
+        border-bottom: 1px solid var(--borde);
+        padding: 14px;
+    }
+
+    .sidebar h2 {
+        margin-bottom: 10px;
+    }
+
+    .inicio {
+        margin-bottom: 10px;
+    }
+
+    .contenido {
+        margin-left: 0;
+        padding: 18px 14px 80px;
+    }
+
+    .encabezado h1 {
+        font-size: 25px;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(
+            3,
+            minmax(0, 1fr)
+        );
+    }
+
+    .carpetas-grid {
+        grid-template-columns: repeat(
+            auto-fill,
+            minmax(145px, 1fr)
+        );
+    }
+}
+
+/* CELULARES */
+
+@media (max-width: 600px) {
+    .acciones {
+        gap: 8px;
+    }
+
+    .acciones button {
+        flex: 1;
+        min-width: 0;
+        padding: 9px;
+        font-size: 12px;
+    }
+
+    .herramientas {
+        gap: 10px;
+    }
+
+    #buscador {
+        width: 100%;
+    }
+
+    #ordenar,
+    .selector-vista {
+        flex: 1;
+    }
+
+    .galeria {
+        grid-template-columns: repeat(
+            2,
+            minmax(0, 1fr)
+        );
+        gap: 8px;
+    }
+
+    .carpetas-grid {
+        grid-template-columns: repeat(
+            2,
+            minmax(0, 1fr)
+        );
+        gap: 10px;
+    }
+
+    .visor .flecha {
+        width: 32px;
+        height: 42px;
+        font-size: 20px;
+    }
+
+    .visor .controles-zoom {
+        gap: 4px;
+        padding: 6px;
+    }
+
+    .visor .controles-zoom button {
+        width: 32px;
+        height: 34px;
+        font-size: 19px;
+    }
+
+    #porcentajeZoom {
+        min-width: 45px;
+        font-size: 12px;
+    }
+
+    .panel-zoom {
+        bottom: 12px;
+    }
+
+    .visor-nombre-flotante {
+        max-width: calc(100% - 110px);
+    }
+}

@@ -1,0 +1,141 @@
+
+/* ==========================================
+   MI GALERIA - COMPONENTES
+   Botones, campos y controles comunes
+========================================== */
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid #4b8dff;
+    outline-offset: 2px;
+}
+
+/* BOTONES */
+
+.boton-primario,
+.boton-secundario {
+    min-height: 40px;
+    padding: 10px 16px;
+    border: 1px solid #444;
+    border-radius: 9px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.boton-primario {
+    background: #4b8dff;
+    border-color: #4b8dff;
+}
+
+.boton-primario:hover:not(:disabled) {
+    background: #3478f5;
+}
+
+.boton-secundario {
+    background: #303030;
+}
+
+.boton-secundario:hover:not(:disabled) {
+    background: #454545;
+}
+
+/* CAMPOS */
+
+input[type="text"],
+input[type="search"],
+select {
+    min-height: 40px;
+    border: 1px solid #3d3d3d;
+    border-radius: 9px;
+    background: #202020;
+    color: #fff;
+}
+
+input::placeholder {
+    color: #999;
+}
+
+/* VENTANAS EMERGENTES */
+
+.modal-accion {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.78);
+}
+
+.modal-accion-contenido {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 25px;
+    border: 1px solid #444;
+    border-radius: 16px;
+    background: #202020;
+    color: #fff;
+}
+
+.modal-accion-botones {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+/* ARCHIVOS PENDIENTES */
+
+.lista-archivos-subida {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    margin-top: 15px;
+    overflow-y: auto;
+}
+
+.archivo-pendiente {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid #3c3c3c;
+    border-radius: 8px;
+    background: #292929;
+}
+
+.archivo-pendiente span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.estado-subida {
+    margin-top: 12px;
+    color: #b5d0ff;
+    font-size: 13px;
+}

@@ -1,0 +1,536 @@
+
+/* ==========================================
+   MI GALERIA - REPRODUCTOR DE VIDEO
+   Archivo: reproductor.css
+========================================== */
+
+/* ==========================================
+   AREA DEL VIDEO
+========================================== */
+
+#visor:has(#panelVideo:not(.oculto)) #areaZoom {
+    position: absolute;
+    inset: 0 0 105px;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#visor:has(#panelVideo:not(.oculto)) #contenidoVisor {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#visor #contenidoVisor video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+/* ==========================================
+   PANEL PRINCIPAL
+========================================== */
+
+.panel-video {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    z-index: 1010;
+
+    width: min(760px, calc(100% - 120px));
+
+    padding: 13px 16px;
+
+    transform: translateX(-50%);
+
+    background: rgba(27, 27, 27, 0.94);
+
+    border: 1px solid #424242;
+    border-radius: 14px;
+
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.55);
+
+    backdrop-filter: blur(15px);
+}
+
+.panel-video.oculto {
+    display: none !important;
+}
+
+/* ==========================================
+   BARRA DE PROGRESO
+========================================== */
+
+#videoProgreso {
+    display: block;
+
+    width: 100%;
+    height: 6px;
+
+    margin: 0 0 15px;
+
+    padding: 0;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #555;
+
+    cursor: pointer;
+
+    accent-color: #4b8dff;
+}
+
+#videoProgreso::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 15px;
+    height: 15px;
+
+    border: 2px solid #fff;
+    border-radius: 50%;
+
+    background: #4b8dff;
+
+    cursor: pointer;
+}
+
+#videoProgreso::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+
+    border: 2px solid #fff;
+    border-radius: 50%;
+
+    background: #4b8dff;
+
+    cursor: pointer;
+}
+
+/* ==========================================
+   FILA DE CONTROLES
+========================================== */
+
+.video-fila {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+/* ==========================================
+   BOTONES
+========================================== */
+
+.video-fila button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 39px;
+    height: 39px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #363636;
+    color: #fff;
+
+    font-size: 19px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s;
+}
+
+.video-fila button:hover {
+    background: #505050;
+}
+
+.video-fila button:active {
+    transform: scale(0.95);
+}
+
+.video-fila button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   TIEMPO
+========================================== */
+
+#videoTiempo {
+    flex-shrink: 0;
+
+    color: #f0f0f0;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    font-variant-numeric: tabular-nums;
+
+    white-space: nowrap;
+}
+
+/* ==========================================
+   VOLUMEN
+========================================== */
+
+#videoVolumen {
+    width: 105px;
+    min-width: 50px;
+
+    height: 5px;
+
+    margin: 0;
+
+    cursor: pointer;
+
+    accent-color: #4b8dff;
+}
+
+/* ==========================================
+   SELECTORES
+========================================== */
+
+#videoVelocidad,
+#videoAjuste {
+    flex-shrink: 0;
+
+    min-height: 39px;
+
+    padding: 8px 10px;
+
+    border: 1px solid #505050;
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #353535;
+    color: #fff;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+#videoVelocidad:hover,
+#videoAjuste:hover {
+    background: #454545;
+}
+
+#videoVelocidad:focus,
+#videoAjuste:focus {
+    border-color: #4b8dff;
+}
+
+/* ==========================================
+   BOTON DE DESCARGA
+========================================== */
+
+#videoDescargar {
+    background: #363636;
+}
+
+#videoDescargar svg {
+    width: 21px;
+    height: 21px;
+
+    stroke: currentColor;
+}
+
+#videoDescargar:hover {
+    background: #3b6097;
+}
+
+/* ==========================================
+   TABLETS
+========================================== */
+
+@media (max-width: 900px) {
+
+    .panel-video {
+        width: min(690px, calc(100% - 80px));
+        padding: 12px;
+    }
+
+    .video-fila {
+        gap: 8px;
+    }
+
+    #videoVolumen {
+        width: 75px;
+    }
+
+    #videoVelocidad,
+    #videoAjuste {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
+
+/* ==========================================
+   CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    #visor:has(#panelVideo:not(.oculto)) #areaZoom {
+        inset: 0 0 125px;
+    }
+
+    .panel-video {
+        bottom: max(12px, env(safe-area-inset-bottom));
+
+        width: calc(100% - 20px);
+
+        padding: 12px 10px;
+
+        border-radius: 12px;
+    }
+
+    #videoProgreso {
+        margin-bottom: 13px;
+    }
+
+    .video-fila {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .video-fila button {
+        width: 35px;
+        height: 35px;
+        font-size: 17px;
+    }
+
+    #videoTiempo {
+        font-size: 11px;
+    }
+
+    #videoVolumen {
+        width: 65px;
+    }
+
+    #videoVelocidad,
+    #videoAjuste {
+        min-height: 35px;
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    #videoDescargar svg {
+        width: 19px;
+        height: 19px;
+    }
+}
+
+/* ==========================================
+   CELULARES PEQUEÑOS
+========================================== */
+
+@media (max-width: 380px) {
+
+    #visor:has(#panelVideo:not(.oculto)) #areaZoom {
+        inset: 0 0 155px;
+    }
+
+    .panel-video {
+        padding: 10px 8px;
+    }
+
+    .video-fila {
+        gap: 6px;
+    }
+
+    #videoVolumen {
+        width: 55px;
+    }
+}
+
+
+
+
+/* ==========================================
+   MI GALERIA - OCULTAR CONTROLES DE VIDEO
+========================================== */
+
+#visor .boton-ocultar-video {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    z-index: 1015;
+
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 28px;
+
+    border: 1px solid #454545;
+    border-radius: 8px;
+
+    background: rgba(35, 35, 35, 0.92);
+    color: white;
+
+    font-size: 15px;
+    cursor: pointer;
+}
+
+#visor .boton-ocultar-video:hover {
+    background: #505050;
+}
+
+/* Ocultar el panel sin detener el video */
+
+#visor.video-controles-ocultos .panel-video {
+    display: none !important;
+}
+
+/* Mantener visible el boton para recuperarlos */
+
+#visor.video-controles-ocultos .boton-ocultar-video {
+    bottom: 12px;
+}
+
+/* Ocultar el boton cuando no haya video */
+
+#visor .boton-ocultar-video[hidden] {
+    display: none !important;
+}
+
+/* TABLETS */
+
+@media (min-width: 601px) and (max-width: 1024px) {
+
+    #visor .boton-ocultar-video {
+        width: 44px;
+        height: 30px;
+    }
+}
+
+/* CELULARES */
+
+@media (max-width: 600px) {
+
+    #visor .boton-ocultar-video {
+        bottom: 5px;
+        width: 40px;
+        height: 28px;
+    }
+}
+
+/* CELULARES HORIZONTALES */
+
+@media (max-height: 500px) and (orientation: landscape) {
+
+    #visor .boton-ocultar-video {
+        bottom: 2px;
+        width: 38px;
+        height: 24px;
+        font-size: 13px;
+    }
+
+    #visor.video-controles-ocultos .boton-ocultar-video {
+        bottom: 8px;
+    }
+}
+
+
+
+/* ==========================================
+   MI GALERIA - BOTON OCULTAR VIDEO
+========================================== */
+
+/* Separar el boton del panel de reproduccion */
+
+#visor .boton-ocultar-video {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1010;
+
+    width: 44px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #303030;
+    border: 1px solid #555;
+    border-radius: 8px;
+    color: white;
+
+    cursor: pointer;
+}
+
+/* Dejar espacio para el boton */
+
+#visor .panel-video {
+    bottom: 52px;
+}
+
+/* Cuando los controles estan ocultos */
+
+#visor.video-controles-ocultos .boton-ocultar-video {
+    bottom: 12px;
+}
+
+/* Celular vertical */
+
+@media (max-width: 600px) and (orientation: portrait) {
+
+    #visor .panel-video {
+        bottom: 55px;
+    }
+
+    #visor .boton-ocultar-video {
+        bottom: 12px;
+    }
+}
+
+/* Celular horizontal */
+
+@media (max-height: 500px) and (orientation: landscape) {
+
+    #visor .panel-video {
+        bottom: 40px;
+    }
+
+    #visor .boton-ocultar-video {
+        bottom: 5px;
+        height: 25px;
+    }
+}

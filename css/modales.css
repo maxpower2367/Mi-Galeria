@@ -1,0 +1,278 @@
+
+/* ==========================================
+   MI GALERIA - VENTANAS EMERGENTES
+   Archivo: modales.css
+========================================== */
+
+.modal-accion {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.78);
+}
+
+.modal-accion-contenido {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 25px;
+    border: 1px solid #444;
+    border-radius: 16px;
+    background: #202020;
+    color: #fff;
+    box-shadow: 0 20px 65px rgba(0,0,0,0.5);
+}
+
+.modal-accion-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.modal-accion-encabezado h2 {
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.modal-accion-cerrar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: #333;
+    color: #fff;
+    font-size: 17px;
+}
+
+.modal-accion-cerrar:hover {
+    background: #505050;
+}
+
+.modal-accion-contenido > p {
+    margin-bottom: 20px;
+    color: #aaa;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* NUEVA CARPETA */
+
+#nombreNuevaCarpeta {
+    width: 100%;
+    min-height: 45px;
+    padding: 13px 15px;
+    border: 1px solid #505050;
+    border-radius: 9px;
+    outline: none;
+    background: #303030;
+    color: #fff;
+    font-size: 15px;
+}
+
+#nombreNuevaCarpeta::placeholder {
+    color: #999;
+}
+
+#nombreNuevaCarpeta:focus {
+    border-color: var(--acento);
+}
+
+/* BOTONES */
+
+.modal-accion-botones {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.boton-primario,
+.boton-secundario {
+    min-height: 40px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 9px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.boton-primario {
+    background: var(--acento);
+}
+
+.boton-primario:hover:not(:disabled) {
+    background: #3478f5;
+}
+
+.boton-secundario {
+    background: #393939;
+}
+
+.boton-secundario:hover:not(:disabled) {
+    background: #4a4a4a;
+}
+
+.boton-primario:disabled,
+.boton-secundario:disabled,
+.modal-accion-cerrar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ARRASTRAR ARCHIVOS */
+
+.zona-arrastre {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 230px;
+    padding: 25px 15px;
+    border: 2px dashed #5977a4;
+    border-radius: 14px;
+    background: #252c37;
+    text-align: center;
+    transition:
+        background 0.2s,
+        border-color 0.2s;
+}
+
+.zona-arrastre.arrastrando-archivo {
+    background: #263e60;
+    border-color: #78acff;
+}
+
+.zona-arrastre-icono {
+    color: #83b1ff;
+    font-size: 55px;
+    line-height: 1;
+}
+
+.zona-arrastre h3 {
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.zona-arrastre p {
+    color: #aaa;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.zona-arrastre .boton-secundario {
+    margin-top: 5px;
+}
+
+/* ARCHIVOS PENDIENTES */
+
+.lista-archivos-subida {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    margin-top: 15px;
+    overflow-y: auto;
+}
+
+.archivo-pendiente {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #3c3c3c;
+    border-radius: 8px;
+    background: #292929;
+}
+
+.archivo-pendiente span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+.archivo-pendiente button {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: #ff9999;
+    font-size: 16px;
+}
+
+.archivo-pendiente button:hover {
+    color: #ff5555;
+}
+
+.estado-subida {
+    margin-top: 12px;
+    color: #b5d0ff;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+
+/* ==========================================
+   CAMPO DE CONTRASENA CON BOTON
+========================================== */
+
+.contenedor-password {
+    position: relative;
+    width: 100%;
+}
+
+.contenedor-password #accesoPassword {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 52px;
+}
+
+.boton-ver-password {
+    position: absolute;
+    top: 50%;
+    right: 9px;
+    transform: translateY(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: transparent;
+    color: #cccccc;
+
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.boton-ver-password:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.boton-ver-password:focus-visible {
+    outline: 2px solid #4d8cff;
+}

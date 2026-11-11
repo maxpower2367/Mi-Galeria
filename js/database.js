@@ -5,7 +5,7 @@
 ========================================== */
 
 const DB_NOMBRE = "MiGaleriaDB";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let db = null;
 
@@ -15,7 +15,9 @@ function crearId() {
     return crypto.randomUUID();
 }
 
-/* INICIAR INDEXEDDB */
+/* ==========================================
+   INICIAR INDEXEDDB
+========================================== */
 
 function iniciarDB() {
     return new Promise((resolve, reject) => {
@@ -26,7 +28,10 @@ function iniciarDB() {
         );
 
         solicitud.onupgradeneeded = evento => {
+
             const base = evento.target.result;
+
+            /* CARPETAS */
 
             if (!base.objectStoreNames.contains("carpetas")) {
                 base.createObjectStore("carpetas", {
@@ -34,20 +39,46 @@ function iniciarDB() {
                 });
             }
 
+            /* ARCHIVOS */
+
             if (!base.objectStoreNames.contains("archivos")) {
                 base.createObjectStore("archivos", {
                     keyPath: "id"
                 });
             }
+
+            /* CACHE PERSISTENTE DE MINIATURAS */
+
+            if (!base.objectStoreNames.contains("miniaturas")) {
+
+                const almacen = base.createObjectStore(
+                    "miniaturas",
+                    {
+                        keyPath: "id"
+                    }
+                );
+
+                almacen.createIndex(
+                    "ultimoAcceso",
+                    "ultimoAcceso",
+                    {
+                        unique: false
+                    }
+                );
+            }
         };
 
         solicitud.onsuccess = () => {
+
             db = solicitud.result;
 
             db.onversionchange = () => {
+
                 db.close();
+
                 alert(
-                    "La base de datos cambió. Actualiza la página."
+                    "La base de datos cambio. " +
+                    "Actualiza la pagina."
                 );
             };
 
@@ -59,14 +90,17 @@ function iniciarDB() {
         };
 
         solicitud.onblocked = () => {
+
             console.warn(
-                "Cierra otras pestañas de Mi Galería."
+                "Cierra otras pestañas de Mi Galeria."
             );
         };
     });
 }
 
-/* GUARDAR O ACTUALIZAR */
+/* ==========================================
+   GUARDAR O ACTUALIZAR
+========================================== */
 
 function guardar(almacen, objeto) {
     return new Promise((resolve, reject) => {
@@ -84,7 +118,9 @@ function guardar(almacen, objeto) {
     });
 }
 
-/* OBTENER TODOS LOS REGISTROS */
+/* ==========================================
+   OBTENER TODOS LOS REGISTROS
+========================================== */
 
 function obtenerTodos(almacen) {
     return new Promise((resolve, reject) => {
@@ -108,7 +144,35 @@ function obtenerTodos(almacen) {
     });
 }
 
-/* ELIMINAR UN REGISTRO */
+/* ==========================================
+   OBTENER UN REGISTRO
+========================================== */
+
+function obtenerRegistro(almacen, id) {
+    return new Promise((resolve, reject) => {
+
+        const tx = db.transaction(
+            almacen,
+            "readonly"
+        );
+
+        const solicitud = tx
+            .objectStore(almacen)
+            .get(id);
+
+        solicitud.onsuccess = () => {
+            resolve(solicitud.result || null);
+        };
+
+        solicitud.onerror = () => {
+            reject(solicitud.error);
+        };
+    });
+}
+
+/* ==========================================
+   ELIMINAR UN REGISTRO
+========================================== */
 
 function eliminar(almacen, id) {
     return new Promise((resolve, reject) => {
@@ -126,7 +190,9 @@ function eliminar(almacen, id) {
     });
 }
 
-/* OPERACIONES EN UNA SOLA TRANSACCION */
+/* ==========================================
+   OPERACIONES EN UNA SOLA TRANSACCION
+========================================== */
 
 function ejecutarTransaccion(almacenes, operaciones) {
     return new Promise((resolve, reject) => {
@@ -144,13 +210,20 @@ function ejecutarTransaccion(almacenes, operaciones) {
     });
 }
 
-/* MOSTRAR ERRORES */
+/* ==========================================
+   MOSTRAR ERRORES
+========================================== */
 
 function mostrarError(error) {
-    console.error("Error de Mi Galería:", error);
+
+    console.error(
+        "Error de Mi Galeria:",
+        error
+    );
 
     alert(
-        "Ocurrió un error al procesar la operación. " +
-        "Revisa la consola del navegador y el espacio disponible."
+        "Ocurrio un error al procesar la operacion. " +
+        "Revisa la consola del navegador y " +
+        "el espacio disponible."
     );
 }
