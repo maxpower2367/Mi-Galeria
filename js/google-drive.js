@@ -1368,6 +1368,255 @@ async function guardarMetadatosGoogleDrive() {
    BOTON GUARDAR ESTRUCTURA
 ========================================== */
 
+
+/* ==========================================
+   GUARDADO AUTOMATICO SEGURO (SOLO ALTAS)
+   Conserva los registros remotos existentes.
+   No publica eliminaciones, movimientos
+   ni cambios de nombre.
+========================================== */
+
+let guardadoAutomaticoEnCurso = Promise.resolve();
+
+function guardarEstructuraAutomatica() {
+    const tarea = guardadoAutomaticoEnCurso
+        .catch(() => {})
+        .then(guardarEstructuraAutomaticaInterna);
+
+    guardadoAutomaticoEnCurso = tarea;
+    return tarea;
+}
+
+async function guardarEstructuraAutomaticaInterna() {
+
+    if (!googleDriveDisponible()) {
+        throw new Error("Google Drive no esta conectado.");
+    }
+
+    const existente = await buscarMetadatosGoogleDrive();
+
+    if (!existente) {
+        throw new Error(
+            "No existe un respaldo de estructura en Drive. " +
+            "Usa primero Guardar estructura en Google Drive."
+        );
+    }
+
+    const respuestaActual =
+        await descargarArchivoGoogleDrive(existente.id);
+
+    let remoto;
+
+    try {
+        remoto = JSON.parse(await respuestaActual.text());
+    } catch (_) {
+        throw new Error(
+            "El respaldo remoto no es JSON valido."
+        );
+    }
+
+    if (
+        remoto?.formato !== "MiGaleriaDrive" ||
+        remoto.version !== 1 ||
+        !Array.isArray(remoto.carpetas) ||
+        !Array.isArray(remoto.archivos)
+    ) {
+        throw new Error(
+            "El respaldo remoto tiene formato incompatible."
+        );
+    }
+
+    const local = await generarMetadatosGaleria();
+
+    const carpetas = new Map();
+    const archivos = new Map();
+    const driveIds = new Set();
+
+    for (const carpeta of remoto.carpetas) {
+
+        if (
+            !carpeta ||
+            typeof carpeta.id !== "string" ||
+            carpetas.has(carpeta.id)
+        ) {
+            throw new Error(
+                "Hay carpetas remotas invalidas o duplicadas."
+            );
+        }
+
+        carpetas.set(carpeta.id, carpeta);
+    }
+
+    for (const archivo of remoto.archivos) {
+
+        if (
+            !archivo ||
+            typeof archivo.id !== "string" ||
+            archivos.has(archivo.id)
+        ) {
+            throw new Error(
+                "Hay archivos remotos invalidos o duplicados."
+            );
+        }
+
+        archivos.set(archivo.id, archivo);
+
+        if (archivo.driveId) {
+            driveIds.add(archivo.driveId);
+        }
+    }
+
+    let carpetasNuevas = 0;
+    let archivosNuevos = 0;
+
+    const porAgregar = new Map(
+        local.carpetas
+            .filter(carpeta => !carpetas.has(carpeta.id))
+            .map(carpeta => [carpeta.id, carpeta])
+    );
+
+    while (porAgregar.size) {
+
+        let progreso = false;
+
+        for (const [id, carpeta] of porAgregar) {
+
+            if (
+                carpeta.padre != null &&
+                !carpetas.has(carpeta.padre)
+            ) {
+                continue;
+            }
+
+            carpetas.set(id, carpeta);
+            porAgregar.delete(id);
+
+            carpetasNuevas++;
+            progreso = true;
+        }
+
+        if (!progreso) {
+            throw new Error(
+                "Hay carpetas nuevas con padres ausentes o circulares."
+            );
+        }
+    }
+
+    for (const archivo of local.archivos) {
+
+        if (archivos.has(archivo.id)) {
+
+            const archivoRemoto = archivos.get(archivo.id);
+
+if (
+    archivo.driveId &&
+    !archivoRemoto.driveId
+) {
+    if (driveIds.has(archivo.driveId)) {
+        throw new Error(
+            "El archivo tiene un ID de Drive duplicado: " +
+            archivo.nombre
+        );
+    }
+
+    archivos.set(archivo.id, {
+        ...archivoRemoto,
+        driveId: archivo.driveId,
+        sincronizacion: "sincronizado"
+    });
+
+    driveIds.add(archivo.driveId);
+    archivosNuevos++;
+}
+
+
+            if (
+                archivo.driveId &&
+                archivoRemoto.driveId &&
+                archivo.driveId !== archivoRemoto.driveId
+            ) {
+                throw new Error(
+                    "Conflicto de identificador: " +
+                    archivo.nombre
+                );
+            }
+
+            continue;
+        }
+
+        if (
+            !archivo.driveId ||
+            driveIds.has(archivo.driveId)
+        ) {
+            continue;
+        }
+
+        if (
+            archivo.carpeta != null &&
+            !carpetas.has(archivo.carpeta)
+        ) {
+            continue;
+        }
+
+        archivos.set(archivo.id, archivo);
+        driveIds.add(archivo.driveId);
+
+        archivosNuevos++;
+    }
+
+    if (!carpetasNuevas && !archivosNuevos) {
+
+        return {
+            carpetasNuevas: 0,
+            archivosNuevos: 0
+        };
+    }
+
+    const actualizado = {
+        ...remoto,
+        actualizado: new Date().toISOString(),
+        carpetas: [...carpetas.values()],
+        archivos: [...archivos.values()]
+    };
+
+    const respuesta = await peticionGoogleDrive(
+        "https://www.googleapis.com/upload/drive/v3/files/" +
+        encodeURIComponent(existente.id) +
+        "?uploadType=media&fields=id,name,mimeType",
+        {
+            method: "PATCH",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: new Blob(
+                [JSON.stringify(actualizado, null, 2)],
+                {
+                    type: "application/json"
+                }
+            )
+        }
+    );
+
+    await procesarRespuestaGoogleDrive(
+        respuesta,
+        "No se pudo guardar la estructura automatica"
+    );
+
+    actualizarEstadoGoogleDrive(
+        "Estructura actualizada: " +
+        carpetasNuevas + " carpetas y " +
+        archivosNuevos + " archivos nuevos"
+    );
+
+    return {
+        carpetasNuevas,
+        archivosNuevos
+    };
+}
+
+
 function iniciarBotonGuardarMetadatos() {
 
     const menu = document.getElementById(
@@ -1920,8 +2169,13 @@ window.MiGaleriaGoogleDrive = {
     generarMetadatos:
         generarMetadatosGaleria,
 
-    guardarMetadatos:
-        guardarMetadatosGoogleDrive
+    
+guardarMetadatos:
+    guardarMetadatosGoogleDrive,
+
+guardarEstructuraAutomatica:
+    guardarEstructuraAutomatica
+
 };
 
 /* ==========================================

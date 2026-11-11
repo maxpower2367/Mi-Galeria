@@ -758,6 +758,31 @@ async function subirArchivos(evento) {
 
         await mostrarContenido();
 
+let errorEstructura = null;
+
+const driveEstructura = window.MiGaleriaGoogleDrive;
+
+if (
+    driveEstructura?.disponible?.() &&
+    driveEstructura.guardarEstructuraAutomatica &&
+    sincronizados > 0
+) {
+    try {
+
+        await driveEstructura.guardarEstructuraAutomatica();
+
+    } catch (error) {
+
+        errorEstructura = error;
+
+        console.warn(
+            "Subida completada; estructura remota pendiente:",
+            error
+        );
+    }
+}
+
+
         let mensaje =
             "Resultado de la subida:\n\n" +
             "Guardados localmente: " + guardados + "\n" +
@@ -783,6 +808,16 @@ async function subirArchivos(evento) {
                 "\nLa sincronizacion pendiente aun " +
                 "no se reintenta automaticamente.";
         }
+
+
+if (errorEstructura) {
+
+    mensaje +=
+        "\n\nATENCION: No se actualizo automaticamente " +
+        "la estructura remota: " +
+        errorEstructura.message;
+}
+
 
         if (guardados > 0 || incompatibles > 0) {
             alert(mensaje);

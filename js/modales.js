@@ -56,8 +56,33 @@ async function crearCarpetaDesdeModal(evento) {
             fecha: Date.now()
         });
 
-        cerrarModalCarpeta();
-        await mostrarContenido();
+cerrarModalCarpeta();
+await mostrarContenido();
+
+        
+const drive = window.MiGaleriaGoogleDrive;
+
+if (
+    drive?.disponible?.() &&
+    drive.guardarEstructuraAutomatica
+) {
+    try {
+        await drive.guardarEstructuraAutomatica();
+    } catch (errorDrive) {
+
+        console.warn(
+            "Carpeta local guardada, estructura remota pendiente:",
+            errorDrive
+        );
+
+        alert(
+            "La carpeta se creo localmente, pero no se pudo " +
+            "actualizar Drive automaticamente: " +
+            errorDrive.message
+        );
+    }
+}
+
 
     } catch (error) {
         mostrarError(error);
@@ -286,6 +311,29 @@ async function confirmarArchivosSubida() {
 
         await mostrarContenido();
 
+
+let errorEstructura = null;
+
+const driveEstructura = window.MiGaleriaGoogleDrive;
+
+if (
+    driveEstructura?.disponible?.() &&
+    driveEstructura.guardarEstructuraAutomatica &&
+    sincronizados > 0
+) {
+    try {
+        await driveEstructura.guardarEstructuraAutomatica();
+    } catch (error) {
+
+        errorEstructura = error;
+
+        console.warn(
+            "Archivos subidos, estructura remota pendiente:",
+            error
+        );
+    }
+}
+
         // ==================================
         // MOSTRAR RESULTADO
         // ==================================
@@ -316,6 +364,15 @@ async function confirmarArchivosSubida() {
             `${guardados} guardados localmente, ` +
             `${sincronizados} subidos a Drive, ` +
             `${pendientes} pendientes.`;
+
+
+if (errorEstructura) {
+
+    mensaje +=
+        "\n\nATENCION: Los archivos llegaron a Drive, " +
+        "pero su estructura no se actualizo automaticamente: " +
+        errorEstructura.message;
+}
 
         alert(mensaje);
 
