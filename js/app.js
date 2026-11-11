@@ -2,7 +2,7 @@
 /* ==========================================
    MI GALERIA - APLICACION PRINCIPAL
    Archivo: app.js
-   Recuperacion manual por metadatos de Drive
+   Recuperacion y sincronizacion Google Drive
 ========================================== */
 
 "use strict";
@@ -12,12 +12,20 @@ function iniciarEventos() {
 
     $("buscador").addEventListener("input", async evento => {
         busquedaActual = evento.target.value.trim().toLowerCase();
-        try { await mostrarContenido(); } catch (error) { mostrarError(error); }
+        try {
+            await mostrarContenido();
+        } catch (error) {
+            mostrarError(error);
+        }
     });
 
     $("ordenar").addEventListener("change", async evento => {
         ordenActual = evento.target.value;
-        try { await mostrarContenido(); } catch (error) { mostrarError(error); }
+        try {
+            await mostrarContenido();
+        } catch (error) {
+            mostrarError(error);
+        }
     });
 
     $("opSeleccionar").addEventListener("click", seleccionarDesdeMenu);
@@ -30,8 +38,12 @@ function iniciarEventos() {
 
     document.addEventListener("click", evento => {
         const menu = $("menuContextual");
-        if (menu && !menu.contains(evento.target) &&
-            !evento.target.closest(".boton-menu")) {
+
+        if (
+            menu &&
+            !menu.contains(evento.target) &&
+            !evento.target.closest(".boton-menu")
+        ) {
             cerrarMenu();
         }
     });
@@ -52,6 +64,7 @@ async function leerRespaldoGoogleDrive() {
     }
 
     const archivo = await drive.buscarMetadatos();
+
     if (!archivo) {
         throw new Error(
             "No existe mi-galeria-metadata.json. " +
@@ -68,10 +81,16 @@ async function leerRespaldoGoogleDrive() {
         throw new Error("El respaldo no contiene JSON valido.");
     }
 
-    if (!respaldo || respaldo.formato !== "MiGaleriaDrive" ||
-        respaldo.version !== 1 || !Array.isArray(respaldo.carpetas) ||
-        !Array.isArray(respaldo.archivos)) {
-        throw new Error("El respaldo no tiene un formato compatible.");
+    if (
+        !respaldo ||
+        respaldo.formato !== "MiGaleriaDrive" ||
+        respaldo.version !== 1 ||
+        !Array.isArray(respaldo.carpetas) ||
+        !Array.isArray(respaldo.archivos)
+    ) {
+        throw new Error(
+            "El respaldo no tiene un formato compatible."
+        );
     }
 
     return respaldo;
@@ -79,7 +98,7 @@ async function leerRespaldoGoogleDrive() {
 
 /* ==========================================
    RECUPERAR ARCHIVOS A SU CARPETA ORIGINAL
-   Solo al pulsar el boton, nunca al conectar.
+   Solo al pulsar el boton.
 ========================================== */
 
 let recuperacionEnProceso = false;
@@ -88,6 +107,7 @@ async function recuperarArchivosGoogleDrive() {
     if (recuperacionEnProceso) return;
 
     const drive = window.MiGaleriaGoogleDrive;
+
     if (!drive || !drive.disponible()) {
         alert("Primero conecta Google Drive.");
         return;
@@ -101,10 +121,13 @@ async function recuperarArchivosGoogleDrive() {
         "No se eliminaran archivos ni carpetas locales.\n\n" +
         "¿Continuar?"
     );
+
     if (!confirmar) return;
 
     recuperacionEnProceso = true;
+
     const boton = $("btnRecuperarGoogleDrive");
+
     if (boton) {
         boton.disabled = true;
         boton.textContent = "Recuperando archivos...";
@@ -115,27 +138,50 @@ async function recuperarArchivosGoogleDrive() {
     let pendientes = 0;
     let sinCarpeta = 0;
     let errores = 0;
+
     const detalles = [];
 
     try {
-        drive.actualizarEstado("Leyendo respaldo de Google Drive...");
+        drive.actualizarEstado(
+            "Leyendo respaldo de Google Drive..."
+        );
+
         const respaldo = await leerRespaldoGoogleDrive();
         const locales = await obtenerTodos("archivos");
         const carpetas = await obtenerTodos("carpetas");
-        const idsCarpetas = new Set(carpetas.map(c => c.id));
-        const porId = new Map(locales.map(a => [a.id, a]));
-        const porDriveId = new Map(
-            locales.filter(a => a.driveId).map(a => [a.driveId, a])
+
+        const idsCarpetas = new Set(
+            carpetas.map(c => c.id)
         );
+
+        const porId = new Map(
+            locales.map(a => [a.id, a])
+        );
+
+        const porDriveId = new Map(
+            locales
+                .filter(a => a.driveId)
+                .map(a => [a.driveId, a])
+        );
+
         const idsRespaldo = new Set();
 
         for (const remoto of respaldo.archivos) {
-            if (!remoto || typeof remoto.id !== "string" ||
-                !remoto.id.trim() || typeof remoto.nombre !== "string" ||
+            if (
+                !remoto ||
+                typeof remoto.id !== "string" ||
+                !remoto.id.trim() ||
+                typeof remoto.nombre !== "string" ||
                 typeof remoto.tipo !== "string" ||
-                (remoto.carpeta != null && typeof remoto.carpeta !== "string")) {
+                (
+                    remoto.carpeta != null &&
+                    typeof remoto.carpeta !== "string"
+                )
+            ) {
                 errores++;
-                detalles.push("Registro de archivo invalido en el respaldo.");
+                detalles.push(
+                    "Registro de archivo invalido en el respaldo."
+                );
                 continue;
             }
 
@@ -144,69 +190,106 @@ async function recuperarArchivosGoogleDrive() {
                 detalles.push("ID repetido: " + remoto.id);
                 continue;
             }
+
             idsRespaldo.add(remoto.id);
 
-            // Un archivo no subido a Drive no se puede recuperar.
-            if (!remoto.driveId || typeof remoto.driveId !== "string") {
+            if (
+                !remoto.driveId ||
+                typeof remoto.driveId !== "string"
+            ) {
                 pendientes++;
                 continue;
             }
 
-            // No cambiar silenciosamente la ubicacion de una copia local.
-            const local = porId.get(remoto.id) || porDriveId.get(remoto.driveId);
+            const local =
+                porId.get(remoto.id) ||
+                porDriveId.get(remoto.driveId);
+
             if (local && local.datos instanceof Blob) {
                 existentes++;
                 continue;
             }
 
-            if (remoto.carpeta != null && !idsCarpetas.has(remoto.carpeta)) {
+            if (
+                remoto.carpeta != null &&
+                !idsCarpetas.has(remoto.carpeta)
+            ) {
                 sinCarpeta++;
-                detalles.push("Falta carpeta de: " + remoto.nombre);
+                detalles.push(
+                    "Falta carpeta de: " + remoto.nombre
+                );
                 continue;
             }
 
-            // Proteger un ID local ocupado por otro archivo distinto.
-            if (local && local.driveId && local.driveId !== remoto.driveId) {
+            if (
+                local &&
+                local.driveId &&
+                local.driveId !== remoto.driveId
+            ) {
                 errores++;
-                detalles.push("Conflicto de ID: " + remoto.nombre);
+                detalles.push(
+                    "Conflicto de ID: " + remoto.nombre
+                );
                 continue;
             }
 
             try {
-                drive.actualizarEstado("Descargando: " + remoto.nombre);
-                const datos = await drive.descargarArchivo(remoto.driveId);
+                drive.actualizarEstado(
+                    "Descargando: " + remoto.nombre
+                );
+
+                const datos = await drive.descargarArchivo(
+                    remoto.driveId
+                );
+
                 if (!(datos instanceof Blob)) {
-                    throw new Error("Google Drive no devolvio un Blob.");
+                    throw new Error(
+                        "Google Drive no devolvio un Blob."
+                    );
                 }
 
-                const registro = local ? { ...local } : {
-                    id: remoto.id,
-                    nombre: remoto.nombre,
-                    tipo: remoto.tipo,
-                    carpeta: remoto.carpeta ?? null,
-                    fecha: remoto.fecha || Date.now()
-                };
+                const registro = local
+                    ? { ...local }
+                    : {
+                        id: remoto.id,
+                        nombre: remoto.nombre,
+                        tipo: remoto.tipo,
+                        carpeta: remoto.carpeta ?? null,
+                        fecha: remoto.fecha || Date.now()
+                    };
 
-                // Solo los registros nuevos adoptan la ubicacion del respaldo.
-                // Los existentes conservan sus cambios locales.
                 registro.datos = datos;
                 registro.driveId = remoto.driveId;
                 registro.sincronizacion = "sincronizado";
 
                 await guardar("archivos", registro);
+
                 porId.set(registro.id, registro);
                 porDriveId.set(registro.driveId, registro);
+
                 recuperados++;
+
             } catch (error) {
                 errores++;
-                detalles.push(remoto.nombre + ": " + error.message);
-                console.error("Error recuperando", remoto.nombre, error);
+
+                detalles.push(
+                    remoto.nombre + ": " + error.message
+                );
+
+                console.error(
+                    "Error recuperando",
+                    remoto.nombre,
+                    error
+                );
             }
         }
 
         await mostrarContenido();
+
         drive.actualizarEstado(
-            errores || sinCarpeta ? "Recuperacion parcial" : "Recuperacion completada"
+            errores || sinCarpeta
+                ? "Recuperacion parcial"
+                : "Recuperacion completada"
         );
 
         alert(
@@ -217,34 +300,65 @@ async function recuperarArchivosGoogleDrive() {
             "Con carpeta faltante: " + sinCarpeta + "\n" +
             "Errores: " + errores + "\n\n" +
             "No se eliminaron archivos locales." +
-            (detalles.length ? "\n\nDetalles:\n" + detalles.slice(0, 5).join("\n") : "")
+            (
+                detalles.length
+                    ? "\n\nDetalles:\n" +
+                      detalles.slice(0, 5).join("\n")
+                    : ""
+            )
         );
+
     } catch (error) {
-        console.error("Error recuperando archivos:", error);
-        drive.actualizarEstado("Error recuperando archivos");
-        alert("No se pudo completar la recuperacion:\n" + error.message);
+        console.error(
+            "Error recuperando archivos:",
+            error
+        );
+
+        drive.actualizarEstado(
+            "Error recuperando archivos"
+        );
+
+        alert(
+            "No se pudo completar la recuperacion:\n" +
+            error.message
+        );
+
     } finally {
         recuperacionEnProceso = false;
+
         if (boton) {
             boton.disabled = false;
-            boton.textContent = "Recuperar desde Google Drive";
+            boton.textContent =
+                "Recuperar desde Google Drive";
         }
     }
 }
 
 function iniciarBotonRecuperacion() {
     const menu = $("panelMenuAjustes");
-    if (!menu || $("btnRecuperarGoogleDrive")) return;
+
+    if (!menu || $("btnRecuperarGoogleDrive")) {
+        return;
+    }
 
     const boton = document.createElement("button");
+
     boton.id = "btnRecuperarGoogleDrive";
     boton.type = "button";
     boton.textContent = "Recuperar desde Google Drive";
-    boton.addEventListener("click", recuperarArchivosGoogleDrive);
+
+    boton.addEventListener(
+        "click",
+        recuperarArchivosGoogleDrive
+    );
 
     const referencia = $("btnListarGoogleDrive");
-    if (referencia) referencia.after(boton);
-    else menu.appendChild(boton);
+
+    if (referencia) {
+        referencia.after(boton);
+    } else {
+        menu.appendChild(boton);
+    }
 }
 
 /* ==========================================
@@ -257,6 +371,7 @@ async function recuperarEstructuraGoogleDrive() {
     if (recuperacionEstructuraEnProceso) return;
 
     const drive = window.MiGaleriaGoogleDrive;
+
     if (!drive || !drive.disponible()) {
         alert("Primero conecta Google Drive.");
         return;
@@ -268,36 +383,63 @@ async function recuperarEstructuraGoogleDrive() {
         "No se eliminaran archivos locales ni se descargaran imagenes.\n" +
         "No se reemplazaran portadas locales existentes.\n\n" +
         "¿Continuar?"
-    )) return;
+    )) {
+        return;
+    }
 
     recuperacionEstructuraEnProceso = true;
+
     const boton = $("btnRecuperarEstructuraDrive");
+
     if (boton) {
         boton.disabled = true;
         boton.textContent = "Recuperando estructura...";
     }
 
     try {
-        drive.actualizarEstado("Leyendo estructura de Google Drive...");
+        drive.actualizarEstado(
+            "Leyendo estructura de Google Drive..."
+        );
+
         const respaldo = await leerRespaldoGoogleDrive();
         const locales = await obtenerTodos("carpetas");
-        const porId = new Map(locales.map(c => [c.id, c]));
+
+        const porId = new Map(
+            locales.map(c => [c.id, c])
+        );
+
         const idsRemotos = new Set();
 
         for (const carpeta of respaldo.carpetas) {
-            if (!carpeta || typeof carpeta.id !== "string" ||
-                !carpeta.id.trim() || typeof carpeta.nombre !== "string" ||
+            if (
+                !carpeta ||
+                typeof carpeta.id !== "string" ||
+                !carpeta.id.trim() ||
+                typeof carpeta.nombre !== "string" ||
                 !carpeta.nombre.trim() ||
-                (carpeta.padre != null && typeof carpeta.padre !== "string") ||
-                (carpeta.portadaArchivoId != null &&
-                    typeof carpeta.portadaArchivoId !== "string") ||
-                idsRemotos.has(carpeta.id)) {
-                throw new Error("El respaldo contiene carpetas invalidas o IDs repetidos.");
+                (
+                    carpeta.padre != null &&
+                    typeof carpeta.padre !== "string"
+                ) ||
+                (
+                    carpeta.portadaArchivoId != null &&
+                    typeof carpeta.portadaArchivoId !== "string"
+                ) ||
+                idsRemotos.has(carpeta.id)
+            ) {
+                throw new Error(
+                    "El respaldo contiene carpetas invalidas o IDs repetidos."
+                );
             }
+
             idsRemotos.add(carpeta.id);
         }
 
-        const disponibles = new Set([...porId.keys(), ...idsRemotos]);
+        const disponibles = new Set([
+            ...porId.keys(),
+            ...idsRemotos
+        ]);
+
         let recuperadas = 0;
         let existentes = 0;
         let omitidas = 0;
@@ -306,22 +448,37 @@ async function recuperarEstructuraGoogleDrive() {
 
         for (const carpeta of respaldo.carpetas) {
             const local = porId.get(carpeta.id);
+
             if (local) {
                 existentes++;
-                if (local.portadaArchivoId || local.portadaPersonalizada instanceof Blob) {
+
+                if (
+                    local.portadaArchivoId ||
+                    local.portadaPersonalizada instanceof Blob
+                ) {
                     portadasConservadas++;
                     continue;
                 }
-                if (local.portadaSinImagen === true) continue;
+
+                if (local.portadaSinImagen === true) {
+                    continue;
+                }
+
                 if (carpeta.portadaArchivoId) {
-                    local.portadaArchivoId = carpeta.portadaArchivoId;
+                    local.portadaArchivoId =
+                        carpeta.portadaArchivoId;
+
                     await guardar("carpetas", local);
                     portadasRecuperadas++;
                 }
+
                 continue;
             }
 
-            if (carpeta.padre != null && !disponibles.has(carpeta.padre)) {
+            if (
+                carpeta.padre != null &&
+                !disponibles.has(carpeta.padre)
+            ) {
                 omitidas++;
                 continue;
             }
@@ -331,56 +488,342 @@ async function recuperarEstructuraGoogleDrive() {
                 nombre: carpeta.nombre,
                 padre: carpeta.padre ?? null,
                 fecha: carpeta.fecha || Date.now(),
-                portadaSinImagen: carpeta.portadaSinImagen === true
+                portadaSinImagen:
+                    carpeta.portadaSinImagen === true
             };
+
             if (carpeta.portadaArchivoId) {
-                nueva.portadaArchivoId = carpeta.portadaArchivoId;
+                nueva.portadaArchivoId =
+                    carpeta.portadaArchivoId;
+
                 portadasRecuperadas++;
             }
+
             await guardar("carpetas", nueva);
+
             porId.set(nueva.id, nueva);
             recuperadas++;
         }
 
         await mostrarContenido();
-        drive.actualizarEstado("Estructura recuperada de Google Drive");
+
+        drive.actualizarEstado(
+            "Estructura recuperada de Google Drive"
+        );
+
         alert(
             "Recuperacion terminada.\n\n" +
             "Carpetas recuperadas: " + recuperadas + "\n" +
             "Carpetas que ya existian: " + existentes + "\n" +
             "Carpetas omitidas: " + omitidas + "\n" +
-            "Referencias de portada recuperadas: " + portadasRecuperadas + "\n" +
-            "Portadas locales conservadas: " + portadasConservadas + "\n\n" +
+            "Referencias de portada recuperadas: " +
+            portadasRecuperadas + "\n" +
+            "Portadas locales conservadas: " +
+            portadasConservadas + "\n\n" +
             "No se eliminaron archivos locales.\n" +
             "No se descargaron imagenes ni videos."
         );
+
     } catch (error) {
-        console.error("Error recuperando estructura:", error);
-        drive.actualizarEstado("Error recuperando estructura");
-        alert("No se pudo recuperar la estructura:\n" + error.message);
+        console.error(
+            "Error recuperando estructura:",
+            error
+        );
+
+        drive.actualizarEstado(
+            "Error recuperando estructura"
+        );
+
+        alert(
+            "No se pudo recuperar la estructura:\n" +
+            error.message
+        );
+
     } finally {
         recuperacionEstructuraEnProceso = false;
+
         if (boton) {
             boton.disabled = false;
-            boton.textContent = "Recuperar estructura de Google Drive";
+            boton.textContent =
+                "Recuperar estructura de Google Drive";
         }
     }
 }
 
 function iniciarBotonRecuperarEstructura() {
     const menu = $("panelMenuAjustes");
-    if (!menu || $("btnRecuperarEstructuraDrive")) return;
+
+    if (!menu || $("btnRecuperarEstructuraDrive")) {
+        return;
+    }
 
     const boton = document.createElement("button");
+
     boton.id = "btnRecuperarEstructuraDrive";
     boton.type = "button";
-    boton.textContent = "Recuperar estructura de Google Drive";
-    boton.addEventListener("click", recuperarEstructuraGoogleDrive);
+
+    boton.textContent =
+        "Recuperar estructura de Google Drive";
+
+    boton.addEventListener(
+        "click",
+        recuperarEstructuraGoogleDrive
+    );
 
     const referencia = $("btnGuardarMetadatosDrive");
-    if (referencia) referencia.after(boton);
-    else menu.appendChild(boton);
+
+    if (referencia) {
+        referencia.after(boton);
+    } else {
+        menu.appendChild(boton);
+    }
 }
+
+/* ==========================================
+   SINCRONIZACION SEGURA DESDE GOOGLE DRIVE
+
+   Solo agrega carpetas y referencias nuevas.
+   No descarga originales.
+   No elimina ni sobrescribe datos existentes.
+========================================== */
+
+let sincronizacionLecturaEnProceso = false;
+
+async function sincronizarNuevosDesdeGoogleDrive() {
+    if (
+        sincronizacionLecturaEnProceso ||
+        recuperacionEnProceso ||
+        recuperacionEstructuraEnProceso
+    ) {
+        return;
+    }
+
+    const drive = window.MiGaleriaGoogleDrive;
+
+    if (!drive?.disponible?.() || !db) {
+        return;
+    }
+
+    sincronizacionLecturaEnProceso = true;
+
+    let nuevasCarpetas = 0;
+    let nuevosArchivos = 0;
+    let conflictos = 0;
+
+    try {
+        drive.actualizarEstado(
+            "Consultando novedades de Google Drive..."
+        );
+
+        const remoto = await leerRespaldoGoogleDrive();
+
+        const [carpetas, archivos] = await Promise.all([
+            obtenerTodos("carpetas"),
+            obtenerTodos("archivos")
+        ]);
+
+        const carpetasLocales = new Set(
+            carpetas.map(c => c.id)
+        );
+
+        const idsRemotos = new Set();
+        const pendientes = new Map();
+
+        /* ==================================
+           VALIDAR CARPETAS REMOTAS
+        ================================== */
+
+        for (const c of remoto.carpetas) {
+            if (
+                !c ||
+                typeof c.id !== "string" ||
+                !c.id.trim() ||
+                typeof c.nombre !== "string" ||
+                !c.nombre.trim() ||
+                (
+                    c.padre != null &&
+                    typeof c.padre !== "string"
+                ) ||
+                idsRemotos.has(c.id)
+            ) {
+                throw new Error(
+                    "El respaldo contiene carpetas invalidas o repetidas."
+                );
+            }
+
+            idsRemotos.add(c.id);
+
+            if (!carpetasLocales.has(c.id)) {
+                pendientes.set(c.id, c);
+            }
+        }
+
+        /* ==================================
+           INSERTAR PADRES ANTES QUE HIJOS
+        ================================== */
+
+        while (pendientes.size) {
+            let avance = false;
+
+            for (const [id, c] of pendientes) {
+                if (
+                    c.padre != null &&
+                    !carpetasLocales.has(c.padre)
+                ) {
+                    continue;
+                }
+
+                await guardar("carpetas", {
+                    id: c.id,
+                    nombre: c.nombre,
+                    padre: c.padre ?? null,
+                    fecha: c.fecha || Date.now(),
+                    portadaSinImagen:
+                        c.portadaSinImagen === true,
+                    portadaArchivoId:
+                        c.portadaArchivoId || null
+                });
+
+                carpetasLocales.add(id);
+                pendientes.delete(id);
+
+                nuevasCarpetas++;
+                avance = true;
+            }
+
+            if (!avance) {
+                conflictos += pendientes.size;
+
+                console.warn(
+                    "Carpetas remotas con padres ausentes o ciclos:",
+                    [...pendientes.keys()]
+                );
+
+                break;
+            }
+        }
+
+        /* ==================================
+           PREPARAR ARCHIVOS LOCALES
+        ================================== */
+
+        const porId = new Map(
+            archivos.map(a => [a.id, a])
+        );
+
+        const porDriveId = new Set(
+            archivos
+                .filter(a => a.driveId)
+                .map(a => a.driveId)
+        );
+
+        const archivosRemotos = new Set();
+
+        /* ==================================
+           AGREGAR SOLO ARCHIVOS NUEVOS
+        ================================== */
+
+        for (const a of remoto.archivos) {
+            if (
+                !a ||
+                typeof a.id !== "string" ||
+                !a.id.trim() ||
+                typeof a.nombre !== "string" ||
+                typeof a.tipo !== "string" ||
+                (
+                    a.carpeta != null &&
+                    typeof a.carpeta !== "string"
+                ) ||
+                archivosRemotos.has(a.id)
+            ) {
+                conflictos++;
+                continue;
+            }
+
+            archivosRemotos.add(a.id);
+
+            if (
+                !a.driveId ||
+                typeof a.driveId !== "string"
+            ) {
+                continue;
+            }
+
+            if (
+                porId.has(a.id) ||
+                porDriveId.has(a.driveId)
+            ) {
+                continue;
+            }
+
+            if (
+                a.carpeta != null &&
+                !carpetasLocales.has(a.carpeta)
+            ) {
+                conflictos++;
+                continue;
+            }
+
+            await guardar("archivos", {
+                id: a.id,
+                nombre: a.nombre,
+                tipo: a.tipo,
+                carpeta: a.carpeta ?? null,
+                fecha: a.fecha || Date.now(),
+                driveId: a.driveId,
+                sincronizacion: "sincronizado"
+            });
+
+            porId.set(a.id, a);
+            porDriveId.add(a.driveId);
+
+            nuevosArchivos++;
+        }
+
+        /* ==================================
+           ACTUALIZAR VISTA
+        ================================== */
+
+        await mostrarContenido();
+
+        const mensaje =
+            `Sincronizacion: ${nuevasCarpetas} carpetas y ` +
+            `${nuevosArchivos} archivos nuevos` +
+            (
+                conflictos
+                    ? `; ${conflictos} registros omitidos`
+                    : ""
+            );
+
+        drive.actualizarEstado(mensaje);
+
+        console.info(mensaje);
+
+    } catch (error) {
+        console.warn(
+            "Sincronizacion automatica no completada:",
+            error
+        );
+
+        drive.actualizarEstado(
+            "No se pudieron consultar novedades de Drive"
+        );
+
+    } finally {
+        sincronizacionLecturaEnProceso = false;
+    }
+}
+
+/* ==========================================
+   SINCRONIZAR AL CONECTAR GOOGLE DRIVE
+========================================== */
+
+window.addEventListener(
+    "miGaleriaDriveConectado",
+    () => {
+        void sincronizarNuevosDesdeGoogleDrive();
+    }
+);
 
 /* ==========================================
    INICIAR APLICACION
@@ -389,14 +832,18 @@ function iniciarBotonRecuperarEstructura() {
 async function iniciar() {
     try {
         await iniciarDB();
+
         iniciarEventos();
+
         iniciarBotonRecuperacion();
         iniciarBotonRecuperarEstructura();
 
-        // No iniciar recuperacion automatica al conectar Drive.
-        // El usuario decide cuando descargar sus archivos.
         await mostrarContenido();
-        console.log("Mi Galeria iniciada correctamente.");
+
+        console.log(
+            "Mi Galeria iniciada correctamente."
+        );
+
     } catch (error) {
         console.error(error);
         mostrarError(error);
@@ -404,7 +851,10 @@ async function iniciar() {
 }
 
 if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", iniciar);
+    document.addEventListener(
+        "DOMContentLoaded",
+        iniciar
+    );
 } else {
     iniciar();
 }
