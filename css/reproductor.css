@@ -534,3 +534,43 @@
         height: 25px;
     }
 }
+
+/* ==========================================
+   BOTON REPETICION AUTOMATICA
+========================================== */
+
+#videoRepetir {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+/* Repeticion activada */
+
+#videoRepetir.repeticion-activa {
+    background: #285ca8;
+    color: #ffffff;
+}
+
+#videoRepetir.repeticion-activa:hover {
+    background: #3673cb;
+}
+
+
+
+/* ==========================================
+   REPETICION DE GIFS
+========================================== */
+
+#gifRepetir {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+#gifRepetir.repeticion-activa {
+    background: #285ca8;
+    color: white;
+}
+
+#gifRepetir.oculto {
+    display: none !important;
+}

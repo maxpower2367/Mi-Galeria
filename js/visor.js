@@ -20,6 +20,188 @@ let controlesZoomOcultos = false;
 let eventosVisorIniciados = false;
 let generacionVisor = 0;
 
+
+/* ==========================================
+   REPETICION AUTOMATICA DE VIDEO
+========================================== */
+
+let repetirVideoVisor =
+    localStorage.getItem("miGaleriaRepetirVideo") === "true";
+
+/* ACTUALIZAR BOTON */
+
+function actualizarBotonRepetirVideo() {
+
+    ["videoRepetir", "gifRepetir"].forEach(id => {
+
+        const boton = elementoVisor(id);
+
+        if (!boton) return;
+
+        boton.classList.toggle(
+            "repeticion-activa",
+            repetirVideoVisor
+        );
+
+        boton.setAttribute(
+            "aria-pressed",
+            String(repetirVideoVisor)
+        );
+
+        boton.title = repetirVideoVisor
+            ? "Desactivar repeticion"
+            : "Activar repeticion";
+
+        boton.setAttribute(
+            "aria-label",
+            boton.title
+        );
+    });
+}
+
+/* ==========================================
+   REPETICION INFINITA DE GIFS
+========================================== */
+
+async function prepararGifConRepeticion(blob) {
+
+    const bytes = new Uint8Array(
+        await blob.arrayBuffer()
+    );
+
+    // Comprobar encabezado GIF87a o GIF89a.
+    const encabezado = String.fromCharCode(
+        ...bytes.slice(0, 6)
+    );
+
+    if (
+        encabezado !== "GIF87a" &&
+        encabezado !== "GIF89a"
+    ) {
+        return blob;
+    }
+
+    // Buscar extension NETSCAPE2.0 existente.
+    const firma = [
+        0x21, 0xFF, 0x0B,
+        0x4E, 0x45, 0x54, 0x53,
+        0x43, 0x41, 0x50, 0x45,
+        0x32, 0x2E, 0x30
+    ];
+
+    for (
+        let i = 0;
+        i <= bytes.length - firma.length - 5;
+        i++
+    ) {
+
+        const coincide = firma.every(
+            (valor, indice) =>
+                bytes[i + indice] === valor
+        );
+
+        if (!coincide) continue;
+
+        const posicion = i + firma.length;
+
+        if (
+            bytes[posicion] === 0x03 &&
+            bytes[posicion + 1] === 0x01
+        ) {
+
+            // Cero significa repeticion infinita.
+            bytes[posicion + 2] = 0;
+            bytes[posicion + 3] = 0;
+
+            return new Blob(
+                [bytes],
+                { type: "image/gif" }
+            );
+        }
+    }
+
+    // Si no existe la extension, insertarla.
+    const extension = new Uint8Array([
+        0x21, 0xFF, 0x0B,
+        0x4E, 0x45, 0x54, 0x53,
+        0x43, 0x41, 0x50, 0x45,
+        0x32, 0x2E, 0x30,
+        0x03, 0x01, 0x00, 0x00, 0x00
+    ]);
+
+    // Encabezado y descriptor de pantalla.
+    if (bytes.length < 13) return blob;
+
+    const tieneTablaGlobal =
+        (bytes[10] & 0x80) !== 0;
+
+    const tamanoTabla = tieneTablaGlobal
+        ? 3 * (1 << ((bytes[10] & 0x07) + 1))
+        : 0;
+
+    const posicion = 13 + tamanoTabla;
+
+    if (posicion >= bytes.length) {
+        return blob;
+    }
+
+    return new Blob(
+        [
+            bytes.slice(0, posicion),
+            extension,
+            bytes.slice(posicion)
+        ],
+        { type: "image/gif" }
+    );
+}
+
+/* ACTIVAR O DESACTIVAR REPETICION */
+
+function alternarRepeticionVideo() {
+
+    repetirVideoVisor = !repetirVideoVisor;
+
+    localStorage.setItem(
+        "miGaleriaRepetirVideo",
+        String(repetirVideoVisor)
+    );
+
+    const video = obtenerVideoVisor();
+
+    if (video) {
+
+        video.loop = repetirVideoVisor;
+
+        if (repetirVideoVisor && video.ended) {
+
+            video.currentTime = 0;
+
+            video.play().catch(error => {
+
+                console.warn(
+                    "No se pudo reiniciar el video:",
+                    error
+                );
+
+            });
+        }
+    }
+
+    actualizarBotonRepetirVideo();
+    // Recargar el GIF actual con la nueva configuracion.
+const archivo = archivoActualVisor();
+
+if (
+    archivo &&
+    (
+        archivo.tipo === "image/gif" ||
+        /\.gif$/i.test(archivo.nombre || "")
+    )
+) {
+    mostrarArchivoVisor();
+}
+}
+
 /* ==========================================
    CACHE TEMPORAL DE IMAGENES DEL VISOR
 ========================================== */
@@ -266,6 +448,17 @@ async function mostrarArchivoVisor() {
         !esVideo
     );
 
+    const esGifActual =
+    archivo.tipo === "image/gif" ||
+    /\.gif$/i.test(archivo.nombre || "");
+
+elementoVisor("gifRepetir")?.classList.toggle(
+    "oculto",
+    !esGifActual
+);
+
+actualizarBotonRepetirVideo();
+
     restablecerZoom();
     actualizarVisibilidadZoom();
 
@@ -284,7 +477,24 @@ async function mostrarArchivoVisor() {
             return;
         }
 
-        urlVisor = URL.createObjectURL(datos);
+        const esGif =
+    archivo.tipo === "image/gif" ||
+    /\.gif$/i.test(archivo.nombre || "");
+
+let datosVisor = datos;
+
+if (esGif && repetirVideoVisor) {
+
+    datosVisor = await prepararGifConRepeticion(
+        datos
+    );
+
+    if (generacion !== generacionVisor) {
+        return;
+    }
+}
+
+urlVisor = URL.createObjectURL(datosVisor);
 
         let multimedia;
 
@@ -305,6 +515,9 @@ multimedia.controls = visorMovil;
 
 // No forzar reproduccion automatica.
 multimedia.autoplay = false;
+
+// Repetir el video cuando termine, si esta activado.
+multimedia.loop = repetirVideoVisor;
 
 // Permitir reproduccion dentro de la pagina.
 multimedia.playsInline = true;
@@ -1510,6 +1723,23 @@ function iniciarEventosVisor() {
     iniciarBotonDescargaVisor();
     iniciarEstilosControlesVideo();
 
+    /* ==========================================
+   EVENTO BOTON REPETIR
+========================================== */
+
+actualizarBotonRepetirVideo();
+
+elementoVisor("videoRepetir")?.addEventListener(
+    "click",
+    alternarRepeticionVideo
+
+);
+
+
+elementoVisor("gifRepetir")?.addEventListener(
+    "click",
+    alternarRepeticionVideo
+);
     /* CERRAR CON X */
 
     elementoVisor("cerrarVisor")
