@@ -20,6 +20,52 @@ let controlesZoomOcultos = false;
 let eventosVisorIniciados = false;
 let generacionVisor = 0;
 
+/* ==========================================
+   CACHE TEMPORAL DE IMAGENES DEL VISOR
+========================================== */
+
+const cacheOriginalesVisor = new Map();
+
+const CACHE_VISOR_MAX_BYTES = 60 * 1024 * 1024;
+
+let cacheVisorBytes = 0;
+
+const descargasVisorPendientes = new Map();
+
+function guardarOriginalVisor(id, blob) {
+
+    if (
+        !(blob instanceof Blob) ||
+        !blob.size ||
+        blob.size > CACHE_VISOR_MAX_BYTES
+    ) {
+        return;
+    }
+
+    if (cacheOriginalesVisor.has(id)) {
+
+        cacheVisorBytes -=
+            cacheOriginalesVisor.get(id).size;
+
+        cacheOriginalesVisor.delete(id);
+    }
+
+    cacheOriginalesVisor.set(id, blob);
+
+    cacheVisorBytes += blob.size;
+
+    while (cacheVisorBytes > CACHE_VISOR_MAX_BYTES) {
+
+        const primero =
+            cacheOriginalesVisor.keys().next().value;
+
+        cacheVisorBytes -=
+            cacheOriginalesVisor.get(primero).size;
+
+        cacheOriginalesVisor.delete(primero);
+    }
+}
+
 const ZOOM_MINIMO = 1;
 const ZOOM_MAXIMO = 5;
 const ZOOM_PASO = 0.25;
@@ -71,11 +117,13 @@ function abrirVisor(id) {
     mostrarArchivoVisor();
 }
 
+
 /* ==========================================
    OBTENER ARCHIVO LOCAL O DESDE DRIVE
 ========================================== */
 
 async function obtenerBlobVisor(archivo) {
+
     if (archivo.datos instanceof Blob) {
         return archivo.datos;
     }
@@ -85,8 +133,7 @@ async function obtenerBlobVisor(archivo) {
     if (
         !archivo.driveId ||
         !drive ||
-        typeof drive.disponible !== "function" ||
-        !drive.disponible() ||
+        !drive.disponible?.() ||
         typeof drive.descargarArchivo !== "function"
     ) {
         throw new Error(
@@ -95,23 +142,89 @@ async function obtenerBlobVisor(archivo) {
         );
     }
 
-    const resultado = await drive.descargarArchivo(
-        archivo.driveId
-    );
+    const id = archivo.driveId;
 
-    if (resultado instanceof Blob) {
-        return resultado;
+    const esVideo = (archivo.tipo || "")
+        .startsWith("video/");
+
+    // Reutilizar imagen descargada anteriormente.
+    if (
+        !esVideo &&
+        cacheOriginalesVisor.has(id)
+    ) {
+
+        const blob = cacheOriginalesVisor.get(id);
+
+        cacheOriginalesVisor.delete(id);
+        cacheOriginalesVisor.set(id, blob);
+
+        return blob;
     }
 
-    if (resultado instanceof ArrayBuffer) {
-        return new Blob([resultado], {
-            type: archivo.tipo || ""
-        });
+    // Evitar descargar dos veces el mismo archivo.
+    if (descargasVisorPendientes.has(id)) {
+        return descargasVisorPendientes.get(id);
     }
 
-    throw new Error(
-        "Google Drive no devolvio un archivo compatible."
-    );
+    const tarea = (async () => {
+
+        const resultado =
+            await drive.descargarArchivo(id);
+
+        let blob;
+
+        if (resultado instanceof Blob) {
+
+            blob = resultado;
+
+        } else if (resultado instanceof ArrayBuffer) {
+
+            blob = new Blob([resultado]);
+
+        } else {
+
+            throw new Error(
+                "Google Drive no devolvio un archivo compatible."
+            );
+        }
+
+        if (!blob.size) {
+            throw new Error(
+                "Google Drive devolvio un archivo vacio."
+            );
+        }
+
+        // Conservar el tipo MIME registrado.
+        if (
+            archivo.tipo &&
+            blob.type !== archivo.tipo
+        ) {
+
+            blob = new Blob(
+                [blob],
+                { type: archivo.tipo }
+            );
+        }
+
+        // Guardar solamente imagenes en cache.
+        if (!esVideo) {
+            guardarOriginalVisor(id, blob);
+        }
+
+        return blob;
+
+    })();
+
+    descargasVisorPendientes.set(id, tarea);
+
+    try {
+
+        return await tarea;
+
+    } finally {
+
+        descargasVisorPendientes.delete(id);
+    }
 }
 
 /* ==========================================
@@ -178,11 +291,55 @@ async function mostrarArchivoVisor() {
         if (esVideo) {
             multimedia = document.createElement("video");
 
-            multimedia.controls = false;
-            multimedia.autoplay = true;
-            multimedia.playsInline = true;
-            multimedia.preload = "metadata";
-            multimedia.style.objectFit = "contain";
+            /* ==========================================
+   CONFIGURACION DE VIDEO PARA MOVILES
+========================================== */
+
+const visorMovil =
+    /Android|iPhone|iPad|iPod/i.test(
+        navigator.userAgent
+    );
+
+// Usar controles nativos en celulares.
+multimedia.controls = visorMovil;
+
+// No forzar reproduccion automatica.
+multimedia.autoplay = false;
+
+// Permitir reproduccion dentro de la pagina.
+multimedia.playsInline = true;
+
+multimedia.preload = "metadata";
+
+multimedia.style.objectFit = "contain";
+
+// Mostrar errores de reproduccion.
+multimedia.addEventListener("error", () => {
+
+    if (generacion !== generacionVisor) {
+        return;
+    }
+
+    const codigo =
+        multimedia.error?.code || "desconocido";
+
+    const aviso = document.createElement("p");
+
+    aviso.style.cssText =
+        "color:white;text-align:center;padding:12px";
+
+    aviso.textContent =
+        "No se pudo reproducir este video " +
+        "en el navegador. Error: " + codigo;
+
+    contenedor.appendChild(aviso);
+
+    console.warn(
+        "Error de reproduccion de video:",
+        multimedia.error
+    );
+
+}, { once: true });
 
             [
                 "loadedmetadata",
@@ -199,10 +356,14 @@ async function mostrarArchivoVisor() {
                 );
             });
 
-            multimedia.addEventListener(
-                "click",
-                alternarReproduccionVideo
-            );
+            // Los controles nativos administran los clics en moviles.
+if (!visorMovil) {
+
+    multimedia.addEventListener(
+        "click",
+        alternarReproduccionVideo
+    );
+}
 
         } else {
             multimedia = document.createElement("img");
@@ -224,9 +385,19 @@ async function mostrarArchivoVisor() {
             reiniciarControlesVideo();
             prepararBotonControlesVideo();
 
-            multimedia.play().catch(() => {
-                actualizarControlesVideo();
-            });
+            // Evitar autoplay bloqueado por Android.
+if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+
+    multimedia.play().catch(error => {
+
+        console.warn(
+            "No se pudo iniciar el video:",
+            error
+        );
+
+        actualizarControlesVideo();
+    });
+}
         }
 
         aplicarZoom();
